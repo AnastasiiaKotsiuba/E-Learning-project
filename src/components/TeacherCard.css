@@ -1,0 +1,92 @@
+.teacher-card {
+  width: 320px;
+  background-color: #fff;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-family: "Montserrat", sans-serif;
+  color: #404040;
+  text-align: center;
+}
+
+.teacher-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.teacher-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+.teacher-info h2 {
+  font-size: 18px;
+  margin: 0;
+  color: #404040;
+}
+
+.teacher-info p {
+  font-size: 14px;
+  color: #909090;
+  margin: 5px 0 0;
+}
+
+.bookmark-icon {
+  width: 20px;
+  height: 25px;
+  cursor: pointer;
+}
+
+.teacher-description {
+  font-size: 14px;
+  color: #606060;
+  line-height: 1.5;
+  margin: 20px 0;
+}
+
+.teacher-languages {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.language-tag {
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 15px;
+}
+
+.language-tag.english {
+  background-color: #d3fbdc;
+  color: #6ad481;
+}
+
+.language-tag.polish {
+  background-color: #ffecd6;
+  color: #f2b166;
+}
+
+.language-tag.spanish {
+  background-color: #ede6fc;
+  color: #b89af5;
+}
+
+.show-more-btn {
+  background-color: #add8ff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 14px;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.show-more-btn:hover {
+  background-color: #84c5ff;
+}
