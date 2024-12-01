@@ -1,6 +1,6 @@
 .teacher-card {
-  width: 260px;
-  height: 300px;
+  width: 286px;
+  height: 268px;
   background-color: #fdfdfd;
   border-radius: 30px;
   padding: 30px;
@@ -8,13 +8,13 @@
   font-family: "Montserrat", sans-serif;
   color: #404040;
   text-align: center;
+  display: flex; /* Включає flexbox */
+  flex-direction: column;
 }
 
 .teacher-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 15px;
 }
 
 .teacher-avatar {
@@ -23,9 +23,14 @@
   border-radius: 50%;
 }
 
+.teacher-info {
+  text-align: left;
+  margin-left: 10px;
+}
+
 .teacher-info h2 {
   font-size: 18px;
-  margin: 0;
+  margin: 0px;
   color: #404040;
 }
 
@@ -39,6 +44,7 @@
   width: 20px;
   height: 25px;
   cursor: pointer;
+  margin-left: auto;
 }
 
 .teacher-description {
@@ -46,12 +52,13 @@
   color: #606060;
   line-height: 1.5;
   margin: 20px 0;
+  text-align: left;
 }
 
 .filtersCard {
   display: flex;
-  justify-content: center;
-  gap: 10px;
+  justify-content: flex-start; /* Вирівнювання фільтрів до лівого краю */
+  gap: 10px; /* Відступи між фільтрами */
 }
 
 .filtersCard h3 {
@@ -75,7 +82,7 @@
 }
 
 .show-more-btn {
-  width: 260px;
+  width: 100%;
   height: 40px;
   background-color: #a5d1ff;
   margin-top: 30px;
@@ -86,6 +93,7 @@
   border-radius: 65px;
   cursor: pointer;
   transition: background-color 0.3s;
+  margin-top: auto;
 }
 
 .show-more-btn:hover {
