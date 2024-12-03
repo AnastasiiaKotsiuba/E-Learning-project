@@ -1,0 +1,16 @@
+.savedFunc {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.savedFunc:hover {
+  transform: scale(1.1); /* Збільшення іконки при наведенні */
+}
+
+button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}

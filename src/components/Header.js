@@ -1,4 +1,3 @@
-console.log("Rendering Header component");
 import { Link } from "react-router-dom";
 import "./Header.css";
 
@@ -8,13 +7,10 @@ const Header = () => {
       <img src="/logo.svg" alt="logo" className="logo" />
       <ul className="navbar">
         <li>
-          <Link to="/">Main</Link>
+          <Link to="/courses">Courses</Link>
         </li>
         <li>
           <Link to="/teachers">Teachers</Link>
-        </li>
-        <li>
-          <Link to="/courses">Courses</Link>
         </li>
         <li>
           <Link to="/dashboards">Dashboards</Link>
