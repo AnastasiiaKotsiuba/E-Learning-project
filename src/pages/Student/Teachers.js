@@ -34,7 +34,7 @@ const Teacher = () => {
     setSearchTerm(event.target.value);
   };
 
-  // Фільтрація вчителів на основі пошуку в `name` та `filters`
+
   const filteredTeachers = teachers.filter((teacher) => {
     const matchesName = teacher.name
       .toLowerCase()
