@@ -12,7 +12,7 @@ import AuthPage from "./pages/Auth/AuthPage";
 import Home from "./pages/Teacher/Home";
 
 const App = () => {
-  const [user, setUser] = useState(null); // Стан для збереження даних користувача
+  const [user, setUser] = useState(null); 
 
   const handleLogin = (userData) => {
     setUser(userData);

@@ -1,4 +1,4 @@
-.auth-page { 
+.auth-page {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -24,6 +24,7 @@
 }
 
 .auth-form button {
+  margin-top: 10px;
   position: relative;
   padding: 10px;
   font-size: 16px;
@@ -37,19 +38,19 @@
   font-family: "Montserrat", sans-serif;
   font-weight: 600;
   box-sizing: border-box;
-  overflow: hidden; /* Забезпечує, щоб хвиля не виходила за межі кнопки */
+  overflow: hidden;
 }
 
 .auth-form button .wave {
   position: absolute;
-  width: 60px; /* Ширина хвилі */
-  height: 60px; /* Висота хвилі */
-  background: rgba(180, 180, 180, 0.2); /* Легкий сірий колір з прозорістю */
-  border-radius: 50%; /* Кругла форма */
+  width: 60px; 
+  height: 60px;
+  background: rgba(180, 180, 180, 0.2); 
+  border-radius: 50%; 
   pointer-events: none;
-  transform: scale(0); /* Початковий стан */
+  transform: scale(0);
   opacity: 1;
-  animation: wave-animation 1.2s ease-out; /* Повільніша анімація */
+  animation: wave-animation 1.2s ease-out;
 }
 
 @keyframes wave-animation {
@@ -58,8 +59,8 @@
     opacity: 1;
   }
   100% {
-    transform: scale(3); /* Збільшуємо масштаб, щоб хвиля була більш помітною */
-    opacity: 0; /* В кінці хвиля стає прозорою */
+    transform: scale(3); 
+    opacity: 0; 
   }
 }
 
@@ -83,7 +84,7 @@
   padding: 10px;
   font-size: 16px;
   width: 300px;
-  height: 40px; 
+  height: 40px;
   border-radius: 5px;
   border: solid #474747 2px;
   box-sizing: border-box;
@@ -92,9 +93,9 @@
 
 .role-selector {
   display: flex;
-  justify-content: space-between; 
-  width: 300px; 
-  margin: 10px 0; 
+  justify-content: space-between;
+  width: 300px;
+  margin: 10px 0;
   font-size: 16px;
 }
 
@@ -106,7 +107,7 @@
 }
 
 .role-selector input[type="radio"] {
-  appearance: none; 
+  appearance: none;
   width: 16px;
   height: 16px;
   border: 2px solid #474747;
@@ -117,10 +118,9 @@
 }
 
 .role-selector input[type="radio"]:checked {
-  background-color: #474747; 
-  border-color: #474747; 
+  background-color: #474747;
+  border-color: #474747;
 }
-
 
 .auth-submit {
   margin-top: 20px;

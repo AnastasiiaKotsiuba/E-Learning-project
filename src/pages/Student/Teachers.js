@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import Header from "../../components/Header"; // Компонент заголовка
-import TeacherCard from "../../components/TeacherCard"; // Компонент картки вчителя
-import SearchBar from "../../components/SearchBar"; // Пошуковий рядок
-import "./Teacher.css"; // Стилі для сторінки
+import Header from "../../components/Header"; 
+import TeacherCard from "../../components/TeacherCard"; 
+import SearchBar from "../../components/SearchBar"; 
+import "./Teacher.css"; 
 
 const Teacher = () => {
-  const [searchTerm, setSearchTerm] = useState(""); // Стан для тексту пошуку
+  const [searchTerm, setSearchTerm] = useState(""); 
   const [teachers, setTeachers] = useState([
     {
       id: 1,
@@ -42,7 +42,7 @@ const Teacher = () => {
     const matchesFilter = teacher.filters.some((filter) =>
       filter.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    return matchesName || matchesFilter; // Вчитель залишається, якщо відповідає пошуку за іменем або мовами
+    return matchesName || matchesFilter; 
   });
 
   return (
