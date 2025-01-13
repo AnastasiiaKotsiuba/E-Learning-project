@@ -22,12 +22,12 @@ const AuthPage = ({ onLogin }) => {
     const y = e.clientY - rect.top;
     const wave = document.createElement("span");
     wave.className = "wave";
-    wave.style.left = `${x - 30}px`; // Зміщення хвилі по горизонталі
-    wave.style.top = `${y - 30}px`; // Зміщення хвилі по вертикалі
+    wave.style.left = `${x - 30}px`; 
+    wave.style.top = `${y - 30}px`; 
     button.appendChild(wave);
 
     setTimeout(() => {
-      wave.remove(); // Видалити хвилю після анімації
+      wave.remove(); 
     }, 800);
   };
 
@@ -88,7 +88,7 @@ const AuthPage = ({ onLogin }) => {
           </div>
         )}
         <button
-          onMouseMove={handleWave} // Тепер обробник на `onMouseMove`
+          onMouseMove={handleWave} 
           onClick={isLogin ? handleLogin : handleRegister}
         >
           {isLogin ? "Log in" : "Sign up"}

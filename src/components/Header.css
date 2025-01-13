@@ -19,6 +19,10 @@
   gap: 20px;
 }
 
+.navbar li a {
+  transition-duration: 0.3s;
+}
+
 .navbar li a:hover {
   font-weight: 600;
   cursor: pointer;
