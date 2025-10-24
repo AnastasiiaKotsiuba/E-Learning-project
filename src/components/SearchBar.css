@@ -1,11 +1,10 @@
-/* Просте стилізоване поле для пошуку */
 input[type="text"] {
-  padding: 6px 30px;
-  font-size: 16px;
+  padding: 6px 20px;
+  font-size: 12px;
   border-radius: 85px;
   background-color: #fdfdfd;
-  width: 640px;
-  height: 50px;
+  width: 220px;
+  height: 30px;
   display: block;
   border: none;
   box-shadow: 0 0 5px rgba(58, 58, 58, 0.15);

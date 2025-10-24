@@ -1,7 +1,11 @@
 import React from "react";
 import "./TeacherCard.css";
 
-const TeacherCard = ({ name, description, filters }) => {
+const TeacherCard = ({ name, description, filters, id, onSave, isSaved }) => {
+  const handleSaveClick = () => {
+    onSave(id); // Цей виклик тепер використовує оновлену логіку Teacher.js
+  };
+
   return (
     <div className="teacher-card">
       <div className="teacher-header">
@@ -10,12 +14,16 @@ const TeacherCard = ({ name, description, filters }) => {
           <h2>{name}</h2>
           <p className="titleCard">{filters.join(" ")}</p>
         </div>
-        <img src="/Saved.svg" alt="savedFunc" className="savedFunc" />
+        <img
+          // Ця логіка тепер працює коректно завдяки правильному isSaved з Teacher.js
+          src={isSaved ? "/SavedFilled.svg" : "/Saved.svg"}
+          alt="savedFunc"
+          className="savedFunc"
+          onClick={handleSaveClick}
+        />
       </div>
 
-      <p className="teacher-description">{description}</p>
-
-      <div className="filtersCard">
+      <div className="filtersTCard">
         {filters &&
           filters.map((filter, index) => (
             <h3 key={index} className="filters">
@@ -23,7 +31,7 @@ const TeacherCard = ({ name, description, filters }) => {
             </h3>
           ))}
       </div>
-
+      <p className="teacher-description">{description}</p>
       <button className="show-more-btn">Show more</button>
     </div>
   );

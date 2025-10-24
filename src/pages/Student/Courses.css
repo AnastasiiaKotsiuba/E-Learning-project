@@ -4,15 +4,7 @@
 
 .headerText{
     margin-top: 60px;
-    margin-bottom: 40px;
+    margin-bottom: 30px;
     color: #535353;
-    font-size: 28px;
-}
-
-.cardContainer {
-  display: flex;
-  flex-wrap: wrap; /* Дозволяє карткам переноситись на новий ряд */
-  gap: 40px; /* Відстань між картками */
-  justify-content: flex-start; /* Початок кожного нового ряду зліва */
-  align-items: flex-start; /* Вирівнює елементи по верхній частині ряду */
+    font-size: 24px;
 }

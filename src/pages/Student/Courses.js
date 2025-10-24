@@ -1,61 +1,50 @@
-import React, { useState } from "react"; // Імпорт useState
-import VideoCard from "../../components/VideoCard";
-import Header from "../../components/Header";
-import "./Courses.css";
-import SearchBar from "../../components/SearchBar";
+import React, { useState, useEffect } from "react";
+import VideoCard from "../../components/VideoCard"; // ✅ Виправлений імпорт (видалено .jsx)
+import Header from "../../components/Header"; // ✅ Виправлений імпорт (видалено .jsx)
+import "./Courses.css"; // ✅ Залишено імпорт стилів
 
-const Courses = () => {
-  const name = "Anastasiia";
-  const [searchTerm, setSearchTerm] = useState(""); // Стан для тексту пошуку
-  const [recommendedVideos, setRecommendedVideos] = useState([
-    {
-      id: 1,
-      title: "How to learn JavaScript for 5 days for totally beginners",
-      teacher: "Alison Perry",
-    },
-    { id: 2, title: "Learn React", teacher: "John Doe" },
-    { id: 3, title: "Advanced JavaScript", teacher: "Jane Smith" },
-    { id: 4, title: "CSS Animations", teacher: "Emily Davis" },
-    { id: 5, title: "Responsive Design", teacher: "Michael Brown" },
-    { id: 6, title: "Node.js Basics", teacher: "Sarah Johnson" },
-    { id: 7, title: "Python for Beginners", teacher: "Laura Wilson" },
-    {
-      id: 8,
-      title: "CSS Animations for Advance level: How to create cards",
-      teacher: "Emily Davis",
-    },
-  ]);
+// ✅ Приймаємо recommendedVideos та searchTerm як пропси від App.jsx
+const Courses = ({ recommendedVideos, searchTerm }) => {
+  const name = "Anastasiia"; // 1. ЛОГІКА ФІЛЬТРАЦІЇ // Цей код фільтрує пропс recommendedVideos на основі глобального searchTerm
 
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
-  };
-
-  // Фільтрація відео на основі введеного пошукового запиту
-  const filteredVideos = recommendedVideos.filter((video) =>
-    video.title.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredVideos = recommendedVideos.filter(
+    (video) =>
+      video.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      video.teacher.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Вибір, що рендерити: всі відео чи тільки відфільтровані
-  const videosToDisplay = searchTerm ? filteredVideos : recommendedVideos;
+  const videosToDisplay = searchTerm ? filteredVideos : recommendedVideos; // ✅ videosToDisplay тепер визначена // ✅ Стан для збережених курсів (ЗАЛИШАЄМО ЛОКАЛЬНО)
+
+  const [savedIds, setSavedIds] = useState(() => {
+    const saved = localStorage.getItem("savedCourses");
+    return saved ? JSON.parse(saved) : [];
+  }); // ✅ Збереження у localStorage
+
+  useEffect(() => {
+    localStorage.setItem("savedCourses", JSON.stringify(savedIds));
+  }, [savedIds]); // ✅ Обробник кліку на "закладку"
+
+  const handleSave = (id) => {
+    setSavedIds((prev) =>
+      prev.includes(id) ? prev.filter((sid) => sid !== id) : [...prev, id]
+    );
+  };
 
   return (
     <div>
-      <Header />
       <div className="content">
-        <SearchBar
-          searchTerm={searchTerm}
-          onSearchChange={handleSearchChange}
-        />
         <h1 className="headerText">
-          Hi, {name} <br />
-          Here are recommendations
+          Hi, {name} <br />Here are recommendations {" "}
         </h1>
         <div className="cardContainer">
           {videosToDisplay.map((video) => (
             <VideoCard
               key={video.id}
+              id={video.id}
               title={video.title}
               teacher={video.teacher}
+              onSave={handleSave}
+              isSaved={savedIds.includes(video.id)}
             />
           ))}
         </div>

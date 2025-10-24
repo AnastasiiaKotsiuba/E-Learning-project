@@ -1,25 +1,43 @@
+/* Стилі для Header */
 #header {
-  height: 120px;
+  height: 80px;
   background-color: #a5d1ff;
+
+  /* ✅ ВИРІВНЮВАННЯ: space-between для поділу логотипу та нав.елементів */
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
-  padding: 60px auto;
+
+  /* ✅ Фіксований відступ для вирівнювання по сітці основного контенту */
+  padding: 0 70px;
+
   color: #fdfdfd;
 }
 
 .logo {
-  width: 164px;
+  width: 156px;
+  /* Явно задаємо height, якщо logo.svg є SVG-контейнером */
+  height: 40px;
+}
+
+/* ✅ КОНТЕЙНЕР ДІЙ: Впорядковує навігацію, пошук та користувача */
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 30px; /* Простір між navbar, SearchBar та User */
 }
 
 .navbar {
   display: flex;
   list-style: none;
   padding: 0;
-  gap: 20px;
+  margin: 0;
+  gap: 30px;
 }
 
 .navbar li a {
+  color: #fdfdfd;
+  text-decoration: none;
   transition-duration: 0.3s;
 }
 
@@ -28,16 +46,9 @@
   cursor: pointer;
 }
 
-.navbar li a {
-  color: #fdfdfd;
-  list-style-type: none;
-  margin: 40px;
-  text-decoration: none;
-}
-
 .user {
   border-radius: 100%;
   border: none;
-  width: 50px;
-  height: 50px;
+  width: 46px;
+  height: 46px;
 }

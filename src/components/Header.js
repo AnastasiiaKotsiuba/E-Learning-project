@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import "./Header.css";
+import SearchBar from "./SearchBar";
 
-const Header = () => {
+const Header = ({ searchTerm, onSearchChange }) => {
   return (
     <div id="header">
       <img src="/logo.svg" alt="logo" className="logo" />
@@ -13,12 +14,16 @@ const Header = () => {
           <Link to="/teachers">Teachers</Link>
         </li>
         <li>
-          <Link to="/dashboards">Dashboards</Link>
+          <Link to="/dashboard">Dashboard</Link>
         </li>
       </ul>
-      <button className="user">
-        <img src="/user.svg" alt="user" />
-      </button>
+      <div className="nav-actions">
+        <SearchBar searchTerm={searchTerm} onSearchChange={onSearchChange} />
+
+        <button className="user">
+          <img src="/user.svg" alt="user" className="user-img" />
+        </button>
+      </div>
     </div>
   );
 };

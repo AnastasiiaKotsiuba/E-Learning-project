@@ -1,73 +1,78 @@
-import React, { useState } from "react";
-import Header from "../../components/Header"; 
-import TeacherCard from "../../components/TeacherCard"; 
-import SearchBar from "../../components/SearchBar"; 
-import "./Teacher.css"; 
+import React, { useState, useEffect } from "react";
+import Header from "../../components/Header";
+import TeacherCard from "../../components/TeacherCard";
+import "./Teacher.css";
+// Компонент тепер приймає дані про викладачів та поточний запит пошуку з App.jsx
+const Teacher = ({ allTeachers, searchTerm }) => { 
+    const name = "Anastasiia";
+  // ✅ Стан для збережених ВИКЛАДАЧІВ (залишаємо локально, бо це стан лише для цієї сторінки)
+  const [savedTeacherIds, setSavedTeacherIds] = useState(() => {
+    // Використовуємо окремий ключ для викладачів
+    const saved = localStorage.getItem("savedTeachers");
+    return saved ? JSON.parse(saved) : [];
+  });
 
-const Teacher = () => {
-  const [searchTerm, setSearchTerm] = useState(""); 
-  const [teachers, setTeachers] = useState([
-    {
-      id: 1,
-      name: "Adrian Spring",
-      description:
-        "I'm Adrian Spring, your teacher for this year. I'm excited to embark on this journey of learning and discovery with all of you.",
-      filters: ["English", "Polish", "Spanish"],
-    },
-    {
-      id: 2,
-      name: "Emily Davis",
-      description:
-        "I'm Emily Davis, an experienced teacher passionate about sharing knowledge. Let’s explore the wonders of learning together!",
-      filters: ["English", "French"],
-    },
-    {
-      id: 3,
-      name: "Michael Brown",
-      description:
-        "Michael here! I specialize in making complex topics simple and enjoyable for all learners.",
-      filters: ["English", "German"],
-    },
-  ]);
+  // ✅ Збереження ID викладачів у localStorage
+  useEffect(() => {
+    localStorage.setItem("savedTeachers", JSON.stringify(savedTeacherIds));
+  }, [savedTeacherIds]);
 
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
+  // ✅ Обробник кліку на "закладку" для ВИКЛАДАЧІВ (зберігаємо/видаляємо)
+  const handleSave = (id) => {
+    setSavedTeacherIds((prev) =>
+      prev.includes(id) ? prev.filter((sid) => sid !== id) : [...prev, id]
+    );
   };
 
-
-  const filteredTeachers = teachers.filter((teacher) => {
+  // ✅ Фільтрування викладачів на основі глобального searchTerm
+  const filteredTeachers = allTeachers.filter((teacher) => {
+    const term = searchTerm.toLowerCase();
+    
     const matchesName = teacher.name
       .toLowerCase()
-      .includes(searchTerm.toLowerCase());
+      .includes(term);
+    
+    // Перевіряємо, чи збігається пошуковий запит з фільтрами (мовами)
     const matchesFilter = teacher.filters.some((filter) =>
-      filter.toLowerCase().includes(searchTerm.toLowerCase())
+      filter.toLowerCase().includes(term)
     );
-    return matchesName || matchesFilter; 
+    
+    // Перевіряємо, чи збігається пошуковий запит з описом
+    const matchesDescription = teacher.description
+      .toLowerCase()
+      .includes(term);
+      
+    return matchesName || matchesFilter || matchesDescription;
   });
 
   return (
     <div>
-      <Header />
+      {/* Header, SearchBar більше не рендеряться тут, вони перенесені у App.jsx */}
       <div className="content">
-        {/* Пошуковий рядок */}
-        <SearchBar
-          searchTerm={searchTerm}
-          onSearchChange={handleSearchChange}
-        />
-
         {/* Заголовок */}
-        <h1 className="headerText">Teacher list</h1>
+        <h1 className="headerText">
+          Hi, {name} <br />
+          Here are recommendations{" "}
+        </h1>
 
         {/* Список карток вчителів */}
         <div className="cardContainer">
-          {filteredTeachers.map((teacher) => (
-            <TeacherCard
-              key={teacher.id}
-              name={teacher.name}
-              description={teacher.description}
-              filters={teacher.filters}
-            />
-          ))}
+          {filteredTeachers.length === 0 ? (
+            <p>No one is found</p>
+          ) : (
+            filteredTeachers.map((teacher) => (
+              <TeacherCard
+                key={teacher.id}
+                id={teacher.id} // Передаємо ID
+                name={teacher.name}
+                description={teacher.description}
+                filters={teacher.filters}
+                onSave={handleSave} // Передаємо функцію збереження
+                // Перевіряємо, чи є ID викладача у збереженому стані
+                isSaved={savedTeacherIds.includes(teacher.id)}
+              />
+            ))
+          )}
         </div>
       </div>
     </div>
