@@ -1,52 +1,87 @@
 import React, { useState, useEffect } from "react";
-import VideoCard from "../../components/VideoCard"; // ✅ Виправлений імпорт (видалено .jsx)
-import Header from "../../components/Header"; // ✅ Виправлений імпорт (видалено .jsx)
-import "./Courses.css"; // ✅ Залишено імпорт стилів
+import VideoCard from "../../components/VideoCard";
+import { auth, db } from "../../utils/firebase";
+import { doc, getDoc } from "firebase/firestore";
+import "./Courses.css";
 
-// ✅ Приймаємо recommendedVideos та searchTerm як пропси від App.jsx
-const Courses = ({ recommendedVideos, searchTerm }) => {
-  const name = "Anastasiia"; // 1. ЛОГІКА ФІЛЬТРАЦІЇ // Цей код фільтрує пропс recommendedVideos на основі глобального searchTerm
-
-  const filteredVideos = recommendedVideos.filter(
-    (video) =>
-      video.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      video.teacher.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const videosToDisplay = searchTerm ? filteredVideos : recommendedVideos; // ✅ videosToDisplay тепер визначена // ✅ Стан для збережених курсів (ЗАЛИШАЄМО ЛОКАЛЬНО)
-
-  const [savedIds, setSavedIds] = useState(() => {
-    const saved = localStorage.getItem("savedCourses");
-    return saved ? JSON.parse(saved) : [];
-  }); // ✅ Збереження у localStorage
+const Courses = ({ recommendedVideos = [], searchTerm = "" }) => {
+  const uid = auth.currentUser?.uid;
+  const [name, setName] = useState(() => {
+    if (!uid) return "User";
+    const saved = localStorage.getItem(`username_${uid}`);
+    return saved || "User";
+  });
 
   useEffect(() => {
-    localStorage.setItem("savedCourses", JSON.stringify(savedIds));
-  }, [savedIds]); // ✅ Обробник кліку на "закладку"
+    const fetchUserName = async () => {
+      if (!uid) return;
+      const userDoc = await getDoc(doc(db, "users", uid));
+      if (userDoc.exists()) {
+        const username = userDoc.data()?.username || "User";
+        setName(username);
+        localStorage.setItem(`username_${uid}`, username);
+      }
+    };
+    fetchUserName();
+  }, [uid]);
+
+  const [savedIds, setSavedIds] = useState(() => {
+    if (!uid) return [];
+    const saved = localStorage.getItem(`savedCourses_${uid}`);
+    return saved ? JSON.parse(saved).map(String) : [];
+  });
+
+  useEffect(() => {
+    if (!uid) return;
+    localStorage.setItem(`savedCourses_${uid}`, JSON.stringify(savedIds));
+  }, [savedIds, uid]);
 
   const handleSave = (id) => {
+    const strId = String(id);
     setSavedIds((prev) =>
-      prev.includes(id) ? prev.filter((sid) => sid !== id) : [...prev, id]
+      prev.includes(strId) ? prev.filter((v) => v !== strId) : [...prev, strId]
     );
   };
+
+  const videosToDisplay = (
+    Array.isArray(recommendedVideos) ? recommendedVideos : []
+  ).filter((video) => {
+    const term = searchTerm.toLowerCase();
+    const inTitle = String(video?.title || "")
+      .toLowerCase()
+      .includes(term);
+    const inTeacher = String(video?.teacher || "")
+      .toLowerCase()
+      .includes(term);
+    const inTags =
+      Array.isArray(video?.tags) &&
+      video.tags.some((tag) => String(tag).toLowerCase().includes(term));
+    return inTitle || inTeacher || inTags;
+  });
 
   return (
     <div>
       <div className="content">
         <h1 className="headerText">
-          Hi, {name} <br />Here are recommendations {" "}
+          Hi, {name} <br />
+          Here are recommendations
         </h1>
         <div className="cardContainer">
-          {videosToDisplay.map((video) => (
-            <VideoCard
-              key={video.id}
-              id={video.id}
-              title={video.title}
-              teacher={video.teacher}
-              onSave={handleSave}
-              isSaved={savedIds.includes(video.id)}
-            />
-          ))}
+          {videosToDisplay.length === 0 ? (
+            <p>No courses found</p>
+          ) : (
+            videosToDisplay.map((video) => (
+              <VideoCard
+                key={video.id}
+                id={video.id}
+                title={video?.title || "Untitled"}
+                teacher={video?.teacher || "Unknown"}
+                filters={Array.isArray(video?.tags) ? video.tags : []}
+                onSave={handleSave}
+                isSaved={savedIds.includes(String(video.id))}
+              />
+            ))
+          )}
         </div>
       </div>
     </div>

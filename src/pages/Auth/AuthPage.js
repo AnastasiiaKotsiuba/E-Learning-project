@@ -1,34 +1,78 @@
 import React, { useState } from "react";
 import "./AuthPage.css";
+import { auth, db } from "../../utils/firebase";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 
 const AuthPage = ({ onLogin }) => {
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(false);
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState("student");
 
-  const handleLogin = () => {
-    onLogin({ username, role });
+  const validateRegistration = () => {
+    if (username.length < 2) {
+      alert("Please enter a name (minimum 2 characters).");
+      return false;
+    }
+    if (password.length < 4) {
+      alert("Password must be at least 4 characters long.");
+      return false;
+    }
+    if (password !== confirmPassword) {
+      alert("Passwords do not match.");
+      return false;
+    }
+    return true;
   };
 
-  const handleRegister = () => {
-    onLogin({ username, role });
-  };
+  const handleFinalSubmit = async (e) => {
+    e.preventDefault();
 
-  const handleWave = (e) => {
-    const button = e.currentTarget;
-    const rect = button.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const wave = document.createElement("span");
-    wave.className = "wave";
-    wave.style.left = `${x - 30}px`; 
-    wave.style.top = `${y - 30}px`; 
-    button.appendChild(wave);
+    try {
+      if (isLogin) {
+        const userCredential = await signInWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+        const uid = userCredential.user.uid;
 
-    setTimeout(() => {
-      wave.remove(); 
-    }, 800);
+        const userDoc = await getDoc(doc(db, "users", uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          onLogin({ username: userData.username, role: userData.role });
+        } else {
+          alert("User data not found in database.");
+        }
+      } else {
+        if (!validateRegistration()) return;
+
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+        const uid = userCredential.user.uid;
+
+        await setDoc(doc(db, "users", uid), {
+          uid,
+          username,
+          email,
+          role,
+        });
+
+        alert("Registration successful!");
+        onLogin({ username, role });
+      }
+    } catch (error) {
+      alert("Error: " + error.message);
+    }
   };
 
   return (
@@ -48,52 +92,78 @@ const AuthPage = ({ onLogin }) => {
         </button>
       </div>
 
-      <div className="auth-form">
+      <form className="auth-form" onSubmit={handleFinalSubmit}>
+        {!isLogin ? (
+          <input
+            type="text"
+            placeholder="Name"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="auth-input"
+            required
+          />
+        ) : null}
+
         <input
-          type="text"
-          placeholder="Name"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           className="auth-input"
+          required
         />
+
         <input
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className="auth-input"
+          required
+          minLength="8"
         />
+
         {!isLogin && (
-          <div className="role-selector">
-            <label className="role-option">
-              <input
-                type="radio"
-                name="role"
-                value="student"
-                checked={role === "student"}
-                onChange={(e) => setRole(e.target.value)}
-              />
-              <span>Student</span>
-            </label>
-            <label className="role-option">
-              <input
-                type="radio"
-                name="role"
-                value="teacher"
-                checked={role === "teacher"}
-                onChange={(e) => setRole(e.target.value)}
-              />
-              <span>Teacher</span>
-            </label>
-          </div>
+          <>
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="auth-input"
+              required
+              minLength="8"
+            />
+
+            <div className="role-selector">
+              <label className="role-option">
+                <input
+                  type="radio"
+                  name="role"
+                  value="student"
+                  checked={role === "student"}
+                  onChange={(e) => setRole(e.target.value)}
+                />
+                <span>Student</span>
+              </label>
+              <label className="role-option">
+                <input
+                  type="radio"
+                  name="role"
+                  value="teacher"
+                  checked={role === "teacher"}
+                  onChange={(e) => setRole(e.target.value)}
+                />
+                <span>Teacher</span>
+              </label>
+            </div>
+          </>
         )}
-        <button
-          onMouseMove={handleWave} 
-          onClick={isLogin ? handleLogin : handleRegister}
-        >
+
+        <button type="submit" className="auth-submit-btn">
           {isLogin ? "Log in" : "Sign up"}
         </button>
-      </div>
+      </form>
     </div>
   );
 };

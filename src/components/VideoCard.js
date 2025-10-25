@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./VideoCard.css";
 
-const VideoCard = ({ title, teacher, id, onSave, isSaved }) => {
+const VideoCard = ({ title, teacher, id, filters, onSave, isSaved }) => {
   const handleSaveClick = () => {
     onSave(id); // Викликає функцію з Courses.js
   };
@@ -22,8 +22,11 @@ const VideoCard = ({ title, teacher, id, onSave, isSaved }) => {
       </div>
 
       <div className="filtersCard">
-        <h3>JavaScript</h3>
-        <h3>HTML</h3>
+        {(Array.isArray(filters) ? filters : []).map((filter, index) => (
+          <h3 key={index} className="filters">
+            {filter}
+          </h3>
+        ))}
       </div>
       <p className="titleCard">{title}</p>
       <button className="watch-btn">Watch now</button>

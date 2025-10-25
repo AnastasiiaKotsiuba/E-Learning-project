@@ -12,14 +12,6 @@ input[type="text"] {
   outline: 0;
 }
 
-.cardContainer {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: flex-start;
-  align-items: flex-start;
-}
-
 .searchImg {
   width: 24px;
   height: 24px;

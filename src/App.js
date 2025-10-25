@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+// App.js
+import React, { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
 } from "react-router-dom";
+
 import Header from "../../tryapp/src/components/Header";
 import Courses from "../../tryapp/src/pages/Student/Courses";
 import TeachersPage from "../../tryapp/src/pages/Student/Teachers";
@@ -12,125 +14,159 @@ import Dashboard from "../../tryapp/src/pages/Student/Dashboard";
 import AuthPage from "../../tryapp/src/pages/Auth/AuthPage";
 import Home from "../../tryapp/src/pages/Teacher/Home";
 
-// === 1. ГЛОБАЛЬНІ ДАНІ (ПІДНЯТІ НА НАЙВИЩИЙ РІВЕНЬ) ===
+import { auth, db } from "../../tryapp/src/utils/firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import { collection, onSnapshot, doc, getDoc } from "firebase/firestore";
 
-// Повний список курсів
-const allVideosData = [
-  {
-    id: 1,
-    title: "How to learn JavaScript for 5 days for totally beginners",
-    teacher: "Alison Perry",
-  },
-  { id: 2, title: "Learn React", teacher: "John Doe" },
-  { id: 3, title: "Advanced JavaScript", teacher: "Jane Smith" },
-  { id: 4, title: "CSS Animations", teacher: "Emily Davis" },
-  { id: 5, title: "Responsive Design", teacher: "Michael Brown" },
-  { id: 6, title: "Node.js Basics", teacher: "Sarah Johnson" },
-  { id: 7, title: "Python for Beginners", teacher: "Laura Wilson" },
-  {
-    id: 8,
-    title: "CSS Animations for Advance level: How to create cards",
-    teacher: "Emily Davis",
-  },
-];
-
-// Повний список викладачів
-const allTeachersData = [
-  {
-    id: 1,
-    name: "Adrian Spring",
-    description:
-      "I'm Adrian Spring, your teacher for this year. I'm excited to embark on this journey of learning and discovery.",
-    filters: ["English", "Polish", "Spanish"],
-  },
-  {
-    id: 2,
-    name: "Emily Davis",
-    description:
-      "I'm Emily Davis, an experienced teacher passionate about sharing knowledge. Let’s explore the new!",
-    filters: ["English", "French"],
-  },
-  {
-    id: 3,
-    name: "Michael Brown",
-    description:
-      "Michael here! I specialize in making complex topics simple and enjoyable for all learners.",
-    filters: ["English", "German"],
-  },
-];
-
-// === 2. КОМПОНЕНТ ДЛЯ ОБГОРТАННЯ МАРШРУТІВ СТУДЕНТА ===
-// Цей компонент рендерить Header та передає пропси пошуку дочірнім елементам
-const StudentLayout = ({
-  searchTerm,
-  onSearchChange,
-  allVideosData,
-  allTeachersData,
-}) => (
-  <>
-    <Header searchTerm={searchTerm} onSearchChange={onSearchChange} />
-    <Routes>
-      <Route
-        path="/courses"
-        element={
-          <Courses recommendedVideos={allVideosData} searchTerm={searchTerm} />
-        }
-      />
-      <Route
-        path="/teachers"
-        element={
-          <TeachersPage allTeachers={allTeachersData} searchTerm={searchTerm} />
-        }
-      />
-      {/* Dashboard не потребує searchTerm, але потребує оновлених даних */}
-      <Route
-        path="/dashboard"
-        element={
-          <Dashboard
-            allTeachers={allTeachersData}
-            recommendedVideos={allVideosData}
-          />
-        }
-      />
-      <Route path="*" element={<Navigate to="/courses" />} />
-    </Routes>
-  </>
-);
-
-// === 3. ГОЛОВНИЙ КОМПОНЕНТ APP ===
 const App = () => {
-  // Стан для автентифікації
   const [user, setUser] = useState(null);
-  // Стан для глобального пошуку
+  const [isAuthReady, setIsAuthReady] = useState(false);
+  const [videosData, setVideosData] = useState([]);
+  const [teachersData, setTeachersData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
+  // === Відстежуємо авторизацію і підвантажуємо username ===
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        const uid = currentUser.uid;
+        const userDoc = await getDoc(doc(db, "users", uid));
+        const userData = userDoc.exists() ? userDoc.data() : {};
+        setUser({
+          uid,
+          role: userData.role || "student",
+          name: userData.username || "User",
+        });
+      } else {
+        setUser(null);
+      }
+      setIsAuthReady(true);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // === Підвантаження відео та викладачів ===
+  useEffect(() => {
+    const videoUnsub = onSnapshot(
+      collection(db, "videos"),
+      (snapshot) => {
+        const videos = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setVideosData(videos);
+        setIsLoading(false);
+      },
+      (error) => console.error("Error loading videos:", error)
+    );
+
+    const teacherUnsub = onSnapshot(
+      collection(db, "teachers"),
+      (snapshot) => {
+        const teachers = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setTeachersData(teachers);
+        setIsLoading(false);
+      },
+      (error) => console.error("Error loading teachers:", error)
+    );
+
+    return () => {
+      videoUnsub();
+      teacherUnsub();
+    };
+  }, []);
+
   const handleLogin = (userData) => {
-    setUser({ role: "student", name: "Anastasiia" }); 
+    setUser({
+      ...userData,
+      uid: auth.currentUser ? auth.currentUser.uid : Date.now().toString(),
+    });
   };
 
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
+  const handleSearchChange = (e) => setSearchTerm(e.target.value);
+
+  const handleLogout = async () => {
+    await auth.signOut();
+    setUser(null);
   };
 
-  const searchProps = {
-    searchTerm,
-    onSearchChange: handleSearchChange,
-    allVideosData,
-    allTeachersData,
-  };
+  if (!isAuthReady) return <div className="loading-screen">Loading...</div>;
 
   return (
     <Router>
       <Routes>
-        {/* АВТЕНТИФІКАЦІЯ: Не авторизований */}
-        {!user ? (
-          <Route path="/*" element={<AuthPage onLogin={handleLogin} />} />
-        ) : user.role === "student" ? (
-          <Route path="/*" element={<StudentLayout {...searchProps} />} />
-        ) : (
-          // ВЧИТЕЛЬ: Маршрути для вчителя
-          <Route path="/*" element={<Home />} />
-        )}
+        <Route
+          path="/auth"
+          element={
+            !user ? (
+              <AuthPage onLogin={handleLogin} />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
+        />
+
+        <Route
+          path="/*"
+          element={
+            user ? (
+              user.role === "student" ? (
+                <>
+                  <Header
+                    searchTerm={searchTerm}
+                    onSearchChange={handleSearchChange}
+                    onLogout={handleLogout}
+                  />
+                  {isLoading && <p>Loading...</p>}
+                  <Routes>
+                    <Route
+                      path="courses"
+                      element={
+                        <Courses
+                          recommendedVideos={videosData}
+                          searchTerm={searchTerm}
+                          userName={user.name}
+                        />
+                      }
+                    />
+                    <Route
+                      path="teachers"
+                      element={
+                        <TeachersPage
+                          allTeachers={teachersData}
+                          searchTerm={searchTerm}
+                          userName={user.name}
+                        />
+                      }
+                    />
+                    <Route
+                      path="dashboard"
+                      element={
+                        <Dashboard
+                          recommendedVideos={videosData}
+                          allTeachers={teachersData}
+                          userName={user.name}
+                        />
+                      }
+                    />
+                    <Route
+                      path="*"
+                      element={<Navigate to="courses" replace />}
+                    />
+                  </Routes>
+                </>
+              ) : (
+                <Home />
+              )
+            ) : (
+              <Navigate to="/auth" replace />
+            )
+          }
+        />
       </Routes>
     </Router>
   );

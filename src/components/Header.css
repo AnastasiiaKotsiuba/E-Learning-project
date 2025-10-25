@@ -1,30 +1,22 @@
-/* Стилі для Header */
 #header {
   height: 80px;
   background-color: #a5d1ff;
-
-  /* ✅ ВИРІВНЮВАННЯ: space-between для поділу логотипу та нав.елементів */
   display: flex;
   justify-content: space-between;
   align-items: center;
-
-  /* ✅ Фіксований відступ для вирівнювання по сітці основного контенту */
   padding: 0 70px;
-
   color: #fdfdfd;
 }
 
 .logo {
   width: 156px;
-  /* Явно задаємо height, якщо logo.svg є SVG-контейнером */
   height: 40px;
 }
 
-/* ✅ КОНТЕЙНЕР ДІЙ: Впорядковує навігацію, пошук та користувача */
 .nav-actions {
   display: flex;
   align-items: center;
-  gap: 30px; /* Простір між navbar, SearchBar та User */
+  gap: 30px; 
 }
 
 .navbar {
@@ -51,4 +43,52 @@
   border: none;
   width: 46px;
   height: 46px;
+}
+
+.user-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 50px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 20;
+  width: 100px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  justify-content: center
+}
+
+.logout-btn {
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+}
+
+.dropdown-menu:hover {
+  background-color: #f5f5f5;
+  color: #000;
+}
+
+.log-out {
+  height: 18px;
+  width: 18px;
+  object-fit: cover;
+  border-radius: 50%;
 }
