@@ -30,28 +30,21 @@ const App = () => {
   const [teachersData, setTeachersData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Авторизація
+  // -------------------------
+  // Авторизація та user state
+  // -------------------------
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         const uid = currentUser.uid;
         const userRef = doc(db, "users", uid);
         const userSnap = await getDoc(userRef);
-        let userData = userSnap.exists() ? userSnap.data() : {};
-
-        if (userData.role === "teacher" && !userData.photoURL) {
-          const teacherSnap = await getDoc(doc(db, "teachers", uid));
-          if (teacherSnap.exists()) {
-            const teacherData = teacherSnap.data();
-            userData.photoURL = teacherData.photoURL;
-            userData.username = userData.username || teacherData.username;
-          }
-        }
+        const userData = userSnap.exists() ? userSnap.data() : {};
 
         setUser({
           uid,
           role: userData.role || "student",
-          name: userData.username || "User",
+          name: userData.name || currentUser.displayName || "User",
           photoURL:
             userData.photoURL || currentUser.photoURL || "/default-avatar.png",
         });
@@ -64,7 +57,9 @@ const App = () => {
     return () => unsubscribeAuth();
   }, []);
 
-  // Отримання даних
+  // -------------------------
+  // Відео та вчителі
+  // -------------------------
   useEffect(() => {
     const unsubVideos = onSnapshot(collection(db, "videos"), (snapshot) => {
       const vids = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
@@ -141,7 +136,10 @@ const App = () => {
                 />
               }
             />
-            <Route path="/student/myprofile" element={<MyProfileS />} />
+            <Route
+              path="/student/myprofile"
+              element={<MyProfileS user={user} setUser={setUser} />}
+            />
             <Route path="*" element={<Navigate to="/courses" replace />} />
           </>
         )}

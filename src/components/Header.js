@@ -22,7 +22,6 @@ const Header = ({ searchTerm, onSearchChange, onLogout, photoURL }) => {
 
   return (
     <div id="header">
-      {/* ЛОГО */}
       <img
         src="/logo.svg"
         alt="logo"
@@ -30,7 +29,6 @@ const Header = ({ searchTerm, onSearchChange, onLogout, photoURL }) => {
         onClick={() => navigate("/courses")}
       />
 
-      {/* НАВІГАЦІЯ */}
       <ul className="navbar">
         <li>
           <Link to="/courses">Courses</Link>
@@ -43,7 +41,6 @@ const Header = ({ searchTerm, onSearchChange, onLogout, photoURL }) => {
         </li>
       </ul>
 
-      {/* ПРАВА ЧАСТИНА */}
       <div className="nav-actions">
         <SearchBar searchTerm={searchTerm} onSearchChange={onSearchChange} />
 
@@ -57,7 +54,6 @@ const Header = ({ searchTerm, onSearchChange, onLogout, photoURL }) => {
             />
           </button>
 
-          {/* Дропдаун меню */}
           {menuOpen && (
             <div className="dropdown-menu">
               <button
