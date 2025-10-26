@@ -95,7 +95,7 @@ const MyProfileS = ({ user, setUser }) => {
           )}
         </div>
         <div className="profile-right">
-          <div className="profile-field">
+          <div className="profile-s">
             <label>Name:</label>
             {isEditing ? (
               <input
@@ -108,7 +108,7 @@ const MyProfileS = ({ user, setUser }) => {
               <p>{studentData.name || "Not specified"}</p>
             )}
           </div>
-          <div className="profile-field">
+          <div className="profile-s">
             <label>Email:</label>
             <p>{studentData.email}</p>
           </div>

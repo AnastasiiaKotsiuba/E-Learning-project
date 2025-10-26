@@ -6,21 +6,22 @@ import {
   Navigate,
 } from "react-router-dom";
 
-import Header from "./components/Header";
-import TeacherHeader from "./components/TeacherHeader";
+import Header from "../../tryapp/src/components/Header";
+import TeacherHeader from "../../tryapp/src/components/TeacherHeader";
 
-import Courses from "./pages/Student/Courses";
-import TeachersPage from "./pages/Student/Teachers";
-import Dashboard from "./pages/Student/Dashboard";
-import AuthPage from "./pages/Auth/AuthPage";
-import AddVideo from "./pages/Teacher/AddVideo";
-import Home from "./pages/Teacher/Home";
-import Chat from "./pages/Teacher/Chat";
-import MyProfileT from "./pages/Teacher/MyProfileT";
-import MyProfileS from "./pages/Student/MyProfileS";
+import Courses from "../../tryapp/src/pages/Student/Courses";
+import TeachersPage from "../../tryapp/src/pages/Student/Teachers";
+import Dashboard from "../../tryapp/src/pages/Student/Dashboard";
+import AuthPage from "../../tryapp/src/pages/Auth/AuthPage";
+import AddVideo from "../../tryapp/src/pages/Teacher/AddVideo";
 
-import { auth, db } from "./utils/firebase";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import Home from "../../tryapp/src/pages/Teacher/Home";
+import Chat from "../../tryapp/src/pages/Teacher/Chat";
+import MyProfileT from "../../tryapp/src/pages/Teacher/MyProfileT";
+import MyProfileS from "../../tryapp/src/pages/Student/MyProfileS";
+
+import { auth, db } from "../../tryapp/src/utils/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 import { collection, onSnapshot, doc, getDoc } from "firebase/firestore";
 
 const App = () => {
@@ -31,7 +32,7 @@ const App = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   // -------------------------
-  // Авторизація та user state
+  // Автоматичне підвантаження користувача
   // -------------------------
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
@@ -39,12 +40,26 @@ const App = () => {
         const uid = currentUser.uid;
         const userRef = doc(db, "users", uid);
         const userSnap = await getDoc(userRef);
-        const userData = userSnap.exists() ? userSnap.data() : {};
+        let userData = userSnap.exists() ? userSnap.data() : {};
+
+        // Якщо користувач - вчитель, підвантажуємо photoURL з teachers
+        if (userData.role === "teacher") {
+          const teacherSnap = await getDoc(doc(db, "teachers", uid));
+          if (teacherSnap.exists()) {
+            const teacherData = teacherSnap.data();
+            userData.photoURL = teacherData.photoURL || userData.photoURL;
+            userData.username = teacherData.username || userData.username;
+          }
+        }
 
         setUser({
           uid,
           role: userData.role || "student",
-          name: userData.name || currentUser.displayName || "User",
+          name:
+            userData.username ||
+            userData.name ||
+            currentUser.displayName ||
+            "User",
           photoURL:
             userData.photoURL || currentUser.photoURL || "/default-avatar.png",
         });
@@ -58,18 +73,28 @@ const App = () => {
   }, []);
 
   // -------------------------
-  // Відео та вчителі
+  // Підвантаження відео та вчителів
   // -------------------------
   useEffect(() => {
-    const unsubVideos = onSnapshot(collection(db, "videos"), (snapshot) => {
-      const vids = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
-      setVideosData(vids);
-    });
+    const unsubVideos = onSnapshot(
+      collection(db, "videos"),
+      (snapshot) => {
+        setVideosData(
+          snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+        );
+      },
+      (error) => console.error("Error loading videos:", error)
+    );
 
-    const unsubTeachers = onSnapshot(collection(db, "teachers"), (snapshot) => {
-      const teachers = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
-      setTeachersData(teachers);
-    });
+    const unsubTeachers = onSnapshot(
+      collection(db, "teachers"),
+      (snapshot) => {
+        setTeachersData(
+          snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+        );
+      },
+      (error) => console.error("Error loading teachers:", error)
+    );
 
     return () => {
       unsubVideos();
@@ -77,33 +102,61 @@ const App = () => {
     };
   }, []);
 
+  // -------------------------
+  // Функції
+  // -------------------------
   const handleLogout = async () => {
-    await signOut(auth);
+    await auth.signOut();
     setUser(null);
   };
 
-  if (!isAuthReady) return <div>Loading...</div>;
+  const handleSearchChange = (e) => setSearchTerm(e.target.value);
+
+  const handleLogin = (loginData) => {
+    // loginData = { username, role }
+    setUser((prev) => ({
+      ...prev,
+      name: loginData.username || prev?.name,
+      role: loginData.role || prev?.role,
+      photoURL: prev?.photoURL || "/default-avatar.png",
+    }));
+  };
+
+  if (!isAuthReady) return <div className="loading-screen">Loading...</div>;
 
   return (
     <Router>
+      {/* === Хедери === */}
       {user?.role === "student" && (
         <Header
           searchTerm={searchTerm}
-          onSearchChange={(e) => setSearchTerm(e.target.value)}
+          onSearchChange={handleSearchChange}
           onLogout={handleLogout}
-          photoURL={user.photoURL}
+          photoURL={user.photoURL || "/default-avatar.png"}
         />
       )}
       {user?.role === "teacher" && (
-        <TeacherHeader onLogout={handleLogout} photoURL={user.photoURL} />
+        <TeacherHeader
+          onLogout={handleLogout}
+          photoURL={user.photoURL || "/default-avatar.png"}
+        />
       )}
 
+      {/* === Маршрути === */}
       <Routes>
+        {/* AUTH */}
         <Route
           path="/auth"
-          element={!user ? <AuthPage /> : <Navigate to="/" replace />}
+          element={
+            !user ? (
+              <AuthPage onLogin={handleLogin} />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
         />
 
+        {/* STUDENT ROUTES */}
         {user?.role === "student" && (
           <>
             <Route
@@ -136,25 +189,19 @@ const App = () => {
                 />
               }
             />
-            <Route
-              path="/student/myprofile"
-              element={<MyProfileS user={user} setUser={setUser} />}
-            />
+            <Route path="/student/myprofile" element={<MyProfileS />} />
             <Route path="*" element={<Navigate to="/courses" replace />} />
           </>
         )}
 
+        {/* TEACHER ROUTES */}
         {user?.role === "teacher" && (
           <>
-            <Route
-              path="/teacher/home"
-              element={<Home allTeachers={teachersData} />}
-            />
+            <Route path="/teacher/home" element={<Home />} />
             <Route path="/teacher/chat" element={<Chat />} />
             <Route path="/teacher/myprofile" element={<MyProfileT />} />
             <Route path="/teacher/addvideo" element={<AddVideo />} />
             <Route path="*" element={<Navigate to="/teacher/home" replace />} />
-            <Route path="/teacher/addvideo/:id" element={<AddVideo />} />
           </>
         )}
 

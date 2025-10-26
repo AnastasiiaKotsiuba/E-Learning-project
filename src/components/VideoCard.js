@@ -12,8 +12,10 @@ const VideoCard = ({
   isSaved,
 }) => {
   const handleSaveClick = (e) => {
-    e.stopPropagation(); // Щоб не спрацьовувало при кліку на всю картку
-    onSave(id);
+    if (onSave) {
+      e.stopPropagation();
+      onSave(id);
+    }
   };
 
   return (
@@ -33,12 +35,14 @@ const VideoCard = ({
           onError={(e) => (e.target.src = "/default-avatar.png")}
         />
         <h2>{teacher}</h2>
-        <img
-          src={isSaved ? "/SavedFilled.svg" : "/Saved.svg"}
-          alt="saved icon"
-          className="savedFunc"
-          onClick={handleSaveClick}
-        />
+        {onSave && (
+          <img
+            src={isSaved ? "/SavedFilled.svg" : "/Saved.svg"}
+            alt="saved icon"
+            className="savedFunc"
+            onClick={handleSaveClick}
+          />
+        )}
       </div>
 
       <div className="filtersCard">
@@ -50,7 +54,6 @@ const VideoCard = ({
       </div>
 
       <p className="titleCard">{title}</p>
-
       <button className="watch-btn">Watch now</button>
     </div>
   );

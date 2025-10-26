@@ -38,22 +38,23 @@
   flex: 2;
 }
 
-.profile-field {
+.profile-s {
   margin-bottom: 15px;
 }
 
-.profile-field label {
+.profile-s label {
   font-weight: 600;
   display: block;
   margin-bottom: 5px;
+  margin-top: 20px;
 }
 
-.profile-field p,
-.profile-field input {
+.profile-s p,
+.profile-s input {
   width: 100%;
   font-size: 15px;
   margin-top: 5px;
-  width: 540px;
+  width: 380px;
 }
 
 input {

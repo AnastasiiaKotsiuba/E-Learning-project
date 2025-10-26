@@ -2,51 +2,65 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "../../utils/firebase";
 import {
-  doc,
-  getDoc,
   collection,
   query,
   where,
   getDocs,
+  getDoc,
+  doc,
 } from "firebase/firestore";
 import VideoCard from "../../components/VideoCard";
 import "./Home.css";
 
-const Home = ({ allTeachers }) => {
+const Home = () => {
   const navigate = useNavigate();
   const uid = auth.currentUser?.uid;
-  const [name, setName] = useState("User");
+
+  const [name, setName] = useState(() => {
+    if (!uid) return "User";
+    const saved = localStorage.getItem(`teacher_name_${uid}`);
+    return saved || "User";
+  });
+
+  const [userPhoto, setUserPhoto] = useState(() => {
+    if (!uid) return "/default-avatar.png";
+    const saved = localStorage.getItem(`teacher_photo_${uid}`);
+    return saved || "/default-avatar.png";
+  });
+
   const [videos, setVideos] = useState([]);
-  const [teacherMap, setTeacherMap] = useState({});
 
   useEffect(() => {
-    if (Array.isArray(allTeachers)) {
-      const map = {};
-      allTeachers.forEach((t) => (map[t.id] = t));
-      setTeacherMap(map);
-    }
-  }, [allTeachers]);
+    if (!uid) return;
 
-  useEffect(() => {
-    const fetchName = async () => {
-      if (!uid) return;
-      const snap = await getDoc(doc(db, "teachers", uid));
-      if (snap.exists()) {
-        const data = snap.data();
-        setName(data.username || data.name || "User");
-      }
+    const fetchVideos = async () => {
+      const q = query(collection(db, "videos"), where("teacherId", "==", uid));
+      const snapshot = await getDocs(q);
+      setVideos(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
     };
-    fetchName();
+
+    fetchVideos();
   }, [uid]);
 
   useEffect(() => {
-    const fetchVideos = async () => {
-      if (!uid) return;
-      const q = query(collection(db, "videos"), where("teacherId", "==", uid));
-      const querySnap = await getDocs(q);
-      setVideos(querySnap.docs.map((d) => ({ id: d.id, ...d.data() })));
+    if (!uid) return;
+
+    const fetchTeacherData = async () => {
+      const snap = await getDoc(doc(db, "teachers", uid));
+      if (snap.exists()) {
+        const data = snap.data();
+        const teacherName = data.name || data.username || "User";
+        const teacherPhoto =
+          data.photoURL || auth.currentUser?.photoURL || "/default-avatar.png";
+
+        setName(teacherName);
+        setUserPhoto(teacherPhoto);
+        localStorage.setItem(`teacher_name_${uid}`, teacherName);
+        localStorage.setItem(`teacher_photo_${uid}`, teacherPhoto);
+      }
     };
-    fetchVideos();
+
+    fetchTeacherData();
   }, [uid]);
 
   return (
@@ -63,12 +77,9 @@ const Home = ({ allTeachers }) => {
               id={v.id}
               title={v.title}
               teacher={name}
-              filters={v.tags}
-              thumbnail={v.thumbnail}
-              role="teacher"
-              photoURL={
-                teacherMap[v.teacherId]?.photoURL || "/default-avatar.png"
-              }
+              teacherPhotoURL={userPhoto} 
+              filters={v.tags || []}
+              thumbnail={v.thumbnail || "/vCard.jpg"}
             />
           ))
         ) : (

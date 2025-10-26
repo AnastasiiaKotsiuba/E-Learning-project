@@ -4,8 +4,17 @@ import "./Header.css";
 
 const TeacherHeader = ({ onLogout, photoURL }) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [avatar, setAvatar] = useState("/default-avatar.png");
   const menuRef = useRef();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (photoURL && photoURL !== "") {
+      setAvatar(photoURL);
+    } else {
+      setAvatar("/default-avatar.png");
+    }
+  }, [photoURL]);
 
   const toggleMenu = () => setMenuOpen((prev) => !prev);
 
@@ -21,7 +30,6 @@ const TeacherHeader = ({ onLogout, photoURL }) => {
 
   return (
     <div id="header">
-      {/* ЛОГО */}
       <img
         src="/logo.svg"
         alt="logo"
@@ -29,7 +37,6 @@ const TeacherHeader = ({ onLogout, photoURL }) => {
         onClick={() => navigate("/teacher/home")}
       />
 
-      {/* НАВІГАЦІЯ */}
       <ul className="navbar">
         <li>
           <Link to="/teacher/home">Home</Link>
@@ -43,9 +50,9 @@ const TeacherHeader = ({ onLogout, photoURL }) => {
         <div className="user-menu" ref={menuRef}>
           <button className="user" onClick={toggleMenu}>
             <img
-              src={photoURL || "/default-avatar.png"}
+              src={avatar}
               alt="teacher avatar"
-              className="user-avatar" 
+              className="user-avatar"
               onError={(e) => (e.target.src = "/default-avatar.png")}
             />
           </button>
