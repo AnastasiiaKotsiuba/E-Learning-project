@@ -70,6 +70,11 @@
   color: #f2b166;
 }
 
+.filtersCard h3:nth-child(3) {
+  background-color: #f1e8ff;
+  color: #b98cff;
+}
+
 .titleCard {
   font-size: 14px;
   color: #606060;
