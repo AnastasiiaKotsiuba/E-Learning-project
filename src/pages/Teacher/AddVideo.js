@@ -5,7 +5,7 @@ import { doc, getDoc, collection, addDoc, updateDoc } from "firebase/firestore";
 import "./AddVideo.css";
 
 const AddVideo = () => {
-  const { id } = useParams(); 
+  const { id } = useParams(); // ⚡ id відео для редагування
   const navigate = useNavigate();
 
   const [videoData, setVideoData] = useState({
@@ -21,6 +21,7 @@ const AddVideo = () => {
 
   const currentUser = auth.currentUser;
 
+  // Підвантаження відео для редагування
   useEffect(() => {
     const fetchVideo = async () => {
       if (!id) return;
@@ -35,10 +36,10 @@ const AddVideo = () => {
         console.error("Error fetching video:", err);
       }
     };
-
     fetchVideo();
   }, [id]);
 
+  // Підвантаження імені вчителя
   useEffect(() => {
     const fetchTeacherName = async () => {
       if (!currentUser || isEditMode) return;
@@ -62,7 +63,6 @@ const AddVideo = () => {
         console.error("Error fetching teacher:", err);
       }
     };
-
     fetchTeacherName();
   }, [currentUser, isEditMode]);
 
@@ -121,7 +121,7 @@ const AddVideo = () => {
         });
         alert("✅ Video added successfully!");
       }
-      navigate("/teacher/home"); 
+      navigate("/teacher/home");
     } catch (err) {
       console.error("Error saving video:", err);
       alert("❌ Error saving video");

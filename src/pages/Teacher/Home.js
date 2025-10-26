@@ -30,6 +30,7 @@ const Home = () => {
 
   const [videos, setVideos] = useState([]);
 
+  // Підвантаження відео вчителя
   useEffect(() => {
     if (!uid) return;
 
@@ -42,6 +43,7 @@ const Home = () => {
     fetchVideos();
   }, [uid]);
 
+  // Підвантаження даних вчителя
   useEffect(() => {
     if (!uid) return;
 
@@ -57,6 +59,9 @@ const Home = () => {
         setUserPhoto(teacherPhoto);
         localStorage.setItem(`teacher_name_${uid}`, teacherName);
         localStorage.setItem(`teacher_photo_${uid}`, teacherPhoto);
+      } else {
+        setName(auth.currentUser?.displayName || "User");
+        setUserPhoto(auth.currentUser?.photoURL || "/default-avatar.png");
       }
     };
 
@@ -77,9 +82,10 @@ const Home = () => {
               id={v.id}
               title={v.title}
               teacher={name}
-              teacherPhotoURL={userPhoto} 
+              teacherPhotoURL={userPhoto}
               filters={v.tags || []}
               thumbnail={v.thumbnail || "/vCard.jpg"}
+              userRole="teacher" // ⚡ кнопка буде "Edit Video"
             />
           ))
         ) : (

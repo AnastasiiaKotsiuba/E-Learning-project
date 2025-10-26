@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import "./VideoCard.css";
 
 const VideoCard = ({
@@ -10,11 +11,22 @@ const VideoCard = ({
   filters,
   onSave,
   isSaved,
+  userRole, // роль користувача
 }) => {
+  const navigate = useNavigate();
+
   const handleSaveClick = (e) => {
     if (onSave) {
       e.stopPropagation();
       onSave(id);
+    }
+  };
+
+  const handleButtonClick = () => {
+    if (userRole === "teacher") {
+      navigate(`/teacher/addvideo/${id}`); // редагування відео
+    } else {
+      alert("Watching video..."); // для студента
     }
   };
 
@@ -54,7 +66,9 @@ const VideoCard = ({
       </div>
 
       <p className="titleCard">{title}</p>
-      <button className="watch-btn">Watch now</button>
+      <button className="watch-btn" onClick={handleButtonClick}>
+        {userRole === "teacher" ? "Edit Video" : "Watch now"}
+      </button>
     </div>
   );
 };

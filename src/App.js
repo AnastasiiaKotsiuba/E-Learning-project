@@ -202,6 +202,7 @@ const App = () => {
             <Route path="/teacher/myprofile" element={<MyProfileT />} />
             <Route path="/teacher/addvideo" element={<AddVideo />} />
             <Route path="*" element={<Navigate to="/teacher/home" replace />} />
+            <Route path="/teacher/addvideo/:id" element={<AddVideo />} />
           </>
         )}
 
