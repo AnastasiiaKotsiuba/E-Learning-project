@@ -5,7 +5,7 @@ const TeacherCard = ({
   name,
   description,
   email,
-  tags = [], // раніше filters
+  tags = [],
   photoURL,
   id,
   onSave,
@@ -28,7 +28,6 @@ const TeacherCard = ({
         <div className="teacher-info">
           <h2>{name}</h2>
           <p className="titleCard">{email || "No email"}</p>{" "}
-          {/* показуємо email */}
         </div>
         {onSave && (
           <img

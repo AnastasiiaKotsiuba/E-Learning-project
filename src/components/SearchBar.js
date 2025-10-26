@@ -9,6 +9,7 @@ const SearchBar = ({ searchTerm, onSearchChange }) => {
         placeholder="Search for a video"
         value={searchTerm}
         onChange={onSearchChange}
+        className="input-search"
       />
     </div>
   );

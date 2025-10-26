@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Header.css";
 
-const TeacherHeader = ({ onLogout }) => {
+const TeacherHeader = ({ onLogout, photoURL }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef();
+  const navigate = useNavigate();
 
   const toggleMenu = () => setMenuOpen((prev) => !prev);
 
@@ -20,11 +21,18 @@ const TeacherHeader = ({ onLogout }) => {
 
   return (
     <div id="header">
-      <img src="/logo.svg" alt="logo" className="logo" />
+      {/* ЛОГО */}
+      <img
+        src="/logo.svg"
+        alt="logo"
+        className="logo"
+        onClick={() => navigate("/teacher/home")}
+      />
 
+      {/* НАВІГАЦІЯ */}
       <ul className="navbar">
         <li>
-          <Link to="/teacher/home">My Profile</Link>
+          <Link to="/teacher/home">Home</Link>
         </li>
         <li>
           <Link to="/teacher/chat">Chat</Link>
@@ -34,13 +42,29 @@ const TeacherHeader = ({ onLogout }) => {
       <div className="nav-actions">
         <div className="user-menu" ref={menuRef}>
           <button className="user" onClick={toggleMenu}>
-            <img src="/user.svg" alt="user" className="user-img" />
+            <img
+              src={photoURL || "/default-avatar.png"}
+              alt="teacher avatar"
+              className="user-avatar" 
+              onError={(e) => (e.target.src = "/default-avatar.png")}
+            />
           </button>
 
           {menuOpen && (
             <div className="dropdown-menu">
-              <button className="logout-btn" onClick={onLogout}>
-                <img src="/log-out.svg" alt="log-out" className="log-out" />
+              <button
+                className="dropdown-item"
+                onClick={() => {
+                  navigate("/teacher/myprofile");
+                  setMenuOpen(false);
+                }}
+              >
+                <img src="/user.svg" alt="profile" className="menu-icon" />
+                My Profile
+              </button>
+
+              <button className="dropdown-item" onClick={onLogout}>
+                <img src="/log-out.svg" alt="log-out" className="menu-icon" />
                 Log out
               </button>
             </div>

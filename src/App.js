@@ -6,19 +6,21 @@ import {
   Navigate,
 } from "react-router-dom";
 
-import Header from "../../tryapp/src/components/Header";
-import TeacherHeader from "../../tryapp/src/components/TeacherHeader";
+import Header from "./components/Header";
+import TeacherHeader from "./components/TeacherHeader";
 
-import Courses from "../../tryapp/src/pages/Student/Courses";
-import TeachersPage from "../../tryapp/src/pages/Student/Teachers";
-import Dashboard from "../../tryapp/src/pages/Student/Dashboard";
-import AuthPage from "../../tryapp/src/pages/Auth/AuthPage";
+import Courses from "./pages/Student/Courses";
+import TeachersPage from "./pages/Student/Teachers";
+import Dashboard from "./pages/Student/Dashboard";
+import AuthPage from "./pages/Auth/AuthPage";
+import AddVideo from "./pages/Teacher/AddVideo";
+import Home from "./pages/Teacher/Home";
+import Chat from "./pages/Teacher/Chat";
+import MyProfileT from "./pages/Teacher/MyProfileT";
+import MyProfileS from "./pages/Student/MyProfileS";
 
-import Home from "../../tryapp/src/pages/Teacher/Home";
-import Chat from "../../tryapp/src/pages/Teacher/Chat"; // 👈 додай цей імпорт
-
-import { auth, db } from "../../tryapp/src/utils/firebase";
-import { onAuthStateChanged } from "firebase/auth";
+import { auth, db } from "./utils/firebase";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { collection, onSnapshot, doc, getDoc } from "firebase/firestore";
 
 const App = () => {
@@ -26,104 +28,88 @@ const App = () => {
   const [isAuthReady, setIsAuthReady] = useState(false);
   const [videosData, setVideosData] = useState([]);
   const [teachersData, setTeachersData] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
+  // Авторизація
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         const uid = currentUser.uid;
-        const userDoc = await getDoc(doc(db, "users", uid));
-        const userData = userDoc.exists() ? userDoc.data() : {};
+        const userRef = doc(db, "users", uid);
+        const userSnap = await getDoc(userRef);
+        let userData = userSnap.exists() ? userSnap.data() : {};
+
+        if (userData.role === "teacher" && !userData.photoURL) {
+          const teacherSnap = await getDoc(doc(db, "teachers", uid));
+          if (teacherSnap.exists()) {
+            const teacherData = teacherSnap.data();
+            userData.photoURL = teacherData.photoURL;
+            userData.username = userData.username || teacherData.username;
+          }
+        }
+
         setUser({
           uid,
           role: userData.role || "student",
           name: userData.username || "User",
+          photoURL:
+            userData.photoURL || currentUser.photoURL || "/default-avatar.png",
         });
       } else {
         setUser(null);
       }
       setIsAuthReady(true);
     });
-    return () => unsubscribe();
+
+    return () => unsubscribeAuth();
   }, []);
 
+  // Отримання даних
   useEffect(() => {
-    const videoUnsub = onSnapshot(
-      collection(db, "videos"),
-      (snapshot) => {
-        const videos = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setVideosData(videos);
-        setIsLoading(false);
-      },
-      (error) => console.error("Error loading videos:", error)
-    );
+    const unsubVideos = onSnapshot(collection(db, "videos"), (snapshot) => {
+      const vids = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+      setVideosData(vids);
+    });
 
-    const teacherUnsub = onSnapshot(
-      collection(db, "teachers"),
-      (snapshot) => {
-        const teachers = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setTeachersData(teachers);
-        setIsLoading(false);
-      },
-      (error) => console.error("Error loading teachers:", error)
-    );
+    const unsubTeachers = onSnapshot(collection(db, "teachers"), (snapshot) => {
+      const teachers = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+      setTeachersData(teachers);
+    });
 
     return () => {
-      videoUnsub();
-      teacherUnsub();
+      unsubVideos();
+      unsubTeachers();
     };
   }, []);
 
-  const handleLogin = (userData) => {
-    setUser({
-      ...userData,
-      uid: auth.currentUser ? auth.currentUser.uid : Date.now().toString(),
-    });
-  };
-
-  const handleSearchChange = (e) => setSearchTerm(e.target.value);
-
   const handleLogout = async () => {
-    await auth.signOut();
+    await signOut(auth);
     setUser(null);
   };
 
-  if (!isAuthReady) return <div className="loading-screen">Loading...</div>;
+  if (!isAuthReady) return <div>Loading...</div>;
 
   return (
     <Router>
-      {user && user.role === "student" && (
+      {user?.role === "student" && (
         <Header
           searchTerm={searchTerm}
-          onSearchChange={handleSearchChange}
+          onSearchChange={(e) => setSearchTerm(e.target.value)}
           onLogout={handleLogout}
+          photoURL={user.photoURL}
         />
       )}
-
-      {user && user.role === "teacher" && (
-        <TeacherHeader onLogout={handleLogout} />
+      {user?.role === "teacher" && (
+        <TeacherHeader onLogout={handleLogout} photoURL={user.photoURL} />
       )}
 
       <Routes>
         <Route
           path="/auth"
-          element={
-            !user ? (
-              <AuthPage onLogin={handleLogin} />
-            ) : (
-              <Navigate to="/" replace />
-            )
-          }
+          element={!user ? <AuthPage /> : <Navigate to="/" replace />}
         />
 
-        {user && user.role === "student" && (
+        {user?.role === "student" && (
           <>
             <Route
               path="/courses"
@@ -155,15 +141,22 @@ const App = () => {
                 />
               }
             />
+            <Route path="/student/myprofile" element={<MyProfileS />} />
             <Route path="*" element={<Navigate to="/courses" replace />} />
           </>
         )}
 
-        {user && user.role === "teacher" && (
+        {user?.role === "teacher" && (
           <>
-            <Route path="/teacher/home" element={<Home />} />
+            <Route
+              path="/teacher/home"
+              element={<Home allTeachers={teachersData} />}
+            />
             <Route path="/teacher/chat" element={<Chat />} />
+            <Route path="/teacher/myprofile" element={<MyProfileT />} />
+            <Route path="/teacher/addvideo" element={<AddVideo />} />
             <Route path="*" element={<Navigate to="/teacher/home" replace />} />
+            <Route path="/teacher/addvideo/:id" element={<AddVideo />} />
           </>
         )}
 
