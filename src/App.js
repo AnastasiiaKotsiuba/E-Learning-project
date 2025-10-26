@@ -1,4 +1,3 @@
-// App.js
 import React, { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
@@ -8,11 +7,15 @@ import {
 } from "react-router-dom";
 
 import Header from "../../tryapp/src/components/Header";
+import TeacherHeader from "../../tryapp/src/components/TeacherHeader";
+
 import Courses from "../../tryapp/src/pages/Student/Courses";
 import TeachersPage from "../../tryapp/src/pages/Student/Teachers";
 import Dashboard from "../../tryapp/src/pages/Student/Dashboard";
 import AuthPage from "../../tryapp/src/pages/Auth/AuthPage";
+
 import Home from "../../tryapp/src/pages/Teacher/Home";
+import Chat from "../../tryapp/src/pages/Teacher/Chat"; // 👈 додай цей імпорт
 
 import { auth, db } from "../../tryapp/src/utils/firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -26,7 +29,6 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // === Відстежуємо авторизацію і підвантажуємо username ===
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
@@ -46,7 +48,6 @@ const App = () => {
     return () => unsubscribe();
   }, []);
 
-  // === Підвантаження відео та викладачів ===
   useEffect(() => {
     const videoUnsub = onSnapshot(
       collection(db, "videos"),
@@ -98,6 +99,18 @@ const App = () => {
 
   return (
     <Router>
+      {user && user.role === "student" && (
+        <Header
+          searchTerm={searchTerm}
+          onSearchChange={handleSearchChange}
+          onLogout={handleLogout}
+        />
+      )}
+
+      {user && user.role === "teacher" && (
+        <TeacherHeader onLogout={handleLogout} />
+      )}
+
       <Routes>
         <Route
           path="/auth"
@@ -110,63 +123,51 @@ const App = () => {
           }
         />
 
-        <Route
-          path="/*"
-          element={
-            user ? (
-              user.role === "student" ? (
-                <>
-                  <Header
-                    searchTerm={searchTerm}
-                    onSearchChange={handleSearchChange}
-                    onLogout={handleLogout}
-                  />
-                  {isLoading && <p>Loading...</p>}
-                  <Routes>
-                    <Route
-                      path="courses"
-                      element={
-                        <Courses
-                          recommendedVideos={videosData}
-                          searchTerm={searchTerm}
-                          userName={user.name}
-                        />
-                      }
-                    />
-                    <Route
-                      path="teachers"
-                      element={
-                        <TeachersPage
-                          allTeachers={teachersData}
-                          searchTerm={searchTerm}
-                          userName={user.name}
-                        />
-                      }
-                    />
-                    <Route
-                      path="dashboard"
-                      element={
-                        <Dashboard
-                          recommendedVideos={videosData}
-                          allTeachers={teachersData}
-                          userName={user.name}
-                        />
-                      }
-                    />
-                    <Route
-                      path="*"
-                      element={<Navigate to="courses" replace />}
-                    />
-                  </Routes>
-                </>
-              ) : (
-                <Home />
-              )
-            ) : (
-              <Navigate to="/auth" replace />
-            )
-          }
-        />
+        {user && user.role === "student" && (
+          <>
+            <Route
+              path="/courses"
+              element={
+                <Courses
+                  recommendedVideos={videosData}
+                  searchTerm={searchTerm}
+                  userName={user.name}
+                />
+              }
+            />
+            <Route
+              path="/teachers"
+              element={
+                <TeachersPage
+                  allTeachers={teachersData}
+                  searchTerm={searchTerm}
+                  userName={user.name}
+                />
+              }
+            />
+            <Route
+              path="/dashboard"
+              element={
+                <Dashboard
+                  recommendedVideos={videosData}
+                  allTeachers={teachersData}
+                  userName={user.name}
+                />
+              }
+            />
+            <Route path="*" element={<Navigate to="/courses" replace />} />
+          </>
+        )}
+
+        {user && user.role === "teacher" && (
+          <>
+            <Route path="/teacher/home" element={<Home />} />
+            <Route path="/teacher/chat" element={<Chat />} />
+            <Route path="*" element={<Navigate to="/teacher/home" replace />} />
+          </>
+        )}
+
+        {!user && <Route path="/*" element={<Navigate to="/auth" replace />} />}
       </Routes>
     </Router>
   );
