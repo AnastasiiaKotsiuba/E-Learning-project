@@ -79,7 +79,9 @@ const Teacher = ({ allTeachers = [], searchTerm = "" }) => {
                 id={teacher.id}
                 name={teacher?.name || "Unknown"}
                 description={teacher?.description || ""}
-                filters={Array.isArray(teacher?.tags) ? teacher.tags : []}
+                email={teacher?.email || "No email"} // додаємо email
+                tags={Array.isArray(teacher?.tags) ? teacher.tags : []} // тепер передаємо tags
+                photoURL={teacher?.photoURL || ""} // додаємо фото з Firebase
                 onSave={handleSave}
                 isSaved={savedTeacherIds.includes(String(teacher.id))}
               />
