@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import VideoCard from "../../components/VideoCard";
 import TeacherCard from "../../components/TeacherCard";
-import { auth } from "../../utils/firebase";
+import { auth, db } from "../../utils/firebase";
+import { collection, getDocs } from "firebase/firestore";
 import "./Dashboard.css";
 
 const Dashboard = ({
@@ -12,6 +13,7 @@ const Dashboard = ({
   const userId = auth.currentUser?.uid;
   const [savedVideoIds, setSavedVideoIds] = useState([]);
   const [savedTeacherIds, setSavedTeacherIds] = useState([]);
+  const [teachersMap, setTeachersMap] = useState({});
 
   useEffect(() => {
     if (!userId) return;
@@ -20,6 +22,25 @@ const Dashboard = ({
     const savedT = localStorage.getItem(`savedTeachers_${userId}`);
     setSavedTeacherIds(savedT ? JSON.parse(savedT).map(String) : []);
   }, [userId]);
+
+  useEffect(() => {
+    const fetchTeachers = async () => {
+      const snapshot = await getDocs(collection(db, "teachers"));
+      const map = {};
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        map[doc.id] = {
+          name: data.name || "Unknown",
+          email: data.email || "No email",
+          description: data.description || "",
+          tags: Array.isArray(data.tags) ? data.tags : [],
+          photoURL: data.photoURL || "/default-avatar.png",
+        };
+      });
+      setTeachersMap(map);
+    };
+    fetchTeachers();
+  }, []);
 
   const handleSaveVideo = (id) => {
     const strId = String(id);
@@ -70,7 +91,8 @@ const Dashboard = ({
         (Array.isArray(teacher?.tags) &&
           teacher.tags.some((tag) =>
             String(tag).toLowerCase().includes(searchTerm.toLowerCase())
-          )))
+          )) ||
+        true)
   );
 
   return (
@@ -87,6 +109,11 @@ const Dashboard = ({
                 id={video.id}
                 title={video?.title || "Untitled"}
                 teacher={video?.teacher || "Unknown"}
+                teacherPhotoURL={
+                  teachersMap[video?.teacherId]?.photoURL ||
+                  "/default-avatar.png"
+                }
+                thumbnail={video?.thumbnail || "/vCard.jpg"}
                 filters={Array.isArray(video?.tags) ? video.tags : []}
                 onSave={handleSaveVideo}
                 isSaved={savedVideoIds.includes(String(video.id))}
@@ -100,17 +127,22 @@ const Dashboard = ({
           {filteredTeachers.length === 0 ? (
             <p>No saved teachers found</p>
           ) : (
-            filteredTeachers.map((teacher) => (
-              <TeacherCard
-                key={teacher.id}
-                id={teacher.id}
-                name={teacher?.name || "Unknown"}
-                description={teacher?.description || ""}
-                filters={Array.isArray(teacher?.tags) ? teacher.tags : []}
-                onSave={handleSaveTeacher}
-                isSaved={savedTeacherIds.includes(String(teacher.id))}
-              />
-            ))
+            filteredTeachers.map((teacher) => {
+              const data = teachersMap[teacher.id] || {};
+              return (
+                <TeacherCard
+                  key={teacher.id}
+                  id={teacher.id}
+                  name={data.name}
+                  description={data.description}
+                  email={data.email}
+                  tags={data.tags}
+                  photoURL={data.photoURL}
+                  onSave={handleSaveTeacher}
+                  isSaved={savedTeacherIds.includes(String(teacher.id))}
+                />
+              );
+            })
           )}
         </div>
       </div>

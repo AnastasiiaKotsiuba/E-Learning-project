@@ -1,25 +1,23 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import "./VideoCard.css";
 
 const VideoCard = ({
   id,
   title,
   teacher,
-  filters,
+  teacherPhotoURL,
   thumbnail,
-  role,
-  photoURL,
+  filters,
+  onSave,
+  isSaved,
 }) => {
-  const navigate = useNavigate();
-
-  const handleCardClick = () => {
-    if (role === "teacher") navigate(`/teacher/addvideo/${id}`);
-    else navigate(`/watch/${id}`);
+  const handleSaveClick = (e) => {
+    e.stopPropagation(); // Щоб не спрацьовувало при кліку на всю картку
+    onSave(id);
   };
 
   return (
-    <div className="video-card" onClick={handleCardClick}>
+    <div className="video-card">
       <img
         src={thumbnail || "/vCard.jpg"}
         alt={title}
@@ -29,36 +27,31 @@ const VideoCard = ({
 
       <div className="teacherCard">
         <img
-          src={photoURL || "/default-avatar.png"}
+          src={teacherPhotoURL || "/default-avatar.png"}
           alt="teacher avatar"
           className="teacherImg"
+          onError={(e) => (e.target.src = "/default-avatar.png")}
         />
         <h2>{teacher}</h2>
+        <img
+          src={isSaved ? "/SavedFilled.svg" : "/Saved.svg"}
+          alt="saved icon"
+          className="savedFunc"
+          onClick={handleSaveClick}
+        />
       </div>
 
       <div className="filtersCard">
-        {(filters || []).map((tag, i) => (
-          <h3 key={i} className="filters">
-            {tag}
+        {(Array.isArray(filters) ? filters : []).map((filter, index) => (
+          <h3 key={index} className="filters">
+            {filter}
           </h3>
         ))}
       </div>
 
       <p className="titleCard">{title}</p>
 
-      {role === "teacher" ? (
-        <button
-          className="watch-btn"
-          onClick={(e) => {
-            e.stopPropagation(); // Щоб не спрацьовував click на div
-            navigate(`/teacher/addvideo/${id}`);
-          }}
-        >
-          Edit video
-        </button>
-      ) : (
-        <button className="watch-btn">Watch now</button>
-      )}
+      <button className="watch-btn">Watch now</button>
     </div>
   );
 };
