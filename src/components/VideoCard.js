@@ -11,7 +11,7 @@ const VideoCard = ({
   filters,
   onSave,
   isSaved,
-  userRole, // роль користувача
+  userRole,
 }) => {
   const navigate = useNavigate();
 
@@ -24,9 +24,9 @@ const VideoCard = ({
 
   const handleButtonClick = () => {
     if (userRole === "teacher") {
-      navigate(`/teacher/addvideo/${id}`); // редагування відео
+      navigate(`/teacher/addvideo/${id}`);
     } else {
-      alert("Watching video..."); // для студента
+      navigate(`/video/${id}`); 
     }
   };
 

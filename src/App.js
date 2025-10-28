@@ -14,7 +14,7 @@ import TeachersPage from "../../tryapp/src/pages/Student/Teachers";
 import Dashboard from "../../tryapp/src/pages/Student/Dashboard";
 import AuthPage from "../../tryapp/src/pages/Auth/AuthPage";
 import AddVideo from "../../tryapp/src/pages/Teacher/AddVideo";
-
+import VideoPlayer from "../../tryapp/src/pages/Student/VideoPlayer";
 import Home from "../../tryapp/src/pages/Teacher/Home";
 import Chat from "../../tryapp/src/pages/Teacher/Chat";
 import MyProfileT from "../../tryapp/src/pages/Teacher/MyProfileT";
@@ -31,9 +31,6 @@ const App = () => {
   const [teachersData, setTeachersData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // -------------------------
-  // Автоматичне підвантаження користувача
-  // -------------------------
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
@@ -42,7 +39,6 @@ const App = () => {
         const userSnap = await getDoc(userRef);
         let userData = userSnap.exists() ? userSnap.data() : {};
 
-        // Якщо користувач - вчитель, підвантажуємо photoURL з teachers
         if (userData.role === "teacher") {
           const teacherSnap = await getDoc(doc(db, "teachers", uid));
           if (teacherSnap.exists()) {
@@ -72,9 +68,6 @@ const App = () => {
     return () => unsubscribeAuth();
   }, []);
 
-  // -------------------------
-  // Підвантаження відео та вчителів
-  // -------------------------
   useEffect(() => {
     const unsubVideos = onSnapshot(
       collection(db, "videos"),
@@ -102,9 +95,6 @@ const App = () => {
     };
   }, []);
 
-  // -------------------------
-  // Функції
-  // -------------------------
   const handleLogout = async () => {
     await auth.signOut();
     setUser(null);
@@ -113,7 +103,6 @@ const App = () => {
   const handleSearchChange = (e) => setSearchTerm(e.target.value);
 
   const handleLogin = (loginData) => {
-    // loginData = { username, role }
     setUser((prev) => ({
       ...prev,
       name: loginData.username || prev?.name,
@@ -142,7 +131,6 @@ const App = () => {
         />
       )}
 
-      {/* === Маршрути === */}
       <Routes>
         {/* AUTH */}
         <Route
@@ -191,6 +179,10 @@ const App = () => {
             />
             <Route path="/student/myprofile" element={<MyProfileS />} />
             <Route path="*" element={<Navigate to="/courses" replace />} />
+            <Route
+              path="/video/:id"
+              element={<VideoPlayer videos={videosData} user={user} />}
+            />
           </>
         )}
 

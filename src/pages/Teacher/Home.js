@@ -43,7 +43,6 @@ const Home = () => {
     fetchVideos();
   }, [uid]);
 
-  // Підвантаження даних вчителя
   useEffect(() => {
     if (!uid) return;
 

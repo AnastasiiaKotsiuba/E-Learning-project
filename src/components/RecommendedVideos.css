@@ -1,0 +1,104 @@
+.recommended-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0;
+}
+
+.recommended-card {
+  display: flex;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 0.2s;
+  padding: 0;
+  border-radius: 8px;
+}
+
+.recommended-thumb {
+  width: 168px;
+  height: 94px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.recommended-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  padding: 0;
+}
+
+.rec-title {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.rec-teacher {
+  font-size: 12px;
+  color: #606060;
+  margin: 0;
+}
+
+.rec-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.rec-tag {
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 10px;
+  font-weight: 300;
+  background-color: #f0f0f0;
+  color: #606060;
+  border: none;
+}
+
+.rec-tag:nth-child(1) {
+ background-color: #d3fbdc;
+  color: #6ad481;
+}
+
+.rec-tag:nth-child(2) {
+  background-color: #ffecd6;
+  color: #f2b166;
+}
+
+.rec-tag:nth-child(3) {
+  background-color: #f1e8ff;
+  color: #b98cff;
+}
+
+.no-recommendations {
+  font-size: 14px;
+  color: #606060;
+  text-align: center;
+  padding: 20px;
+}
+
+@media (max-width: 768px) {
+  .recommended-thumb {
+    width: 120px;
+    height: 68px;
+  }
+  
+  .rec-title {
+    font-size: 13px;
+  }
+  
+  .rec-teacher {
+    font-size: 11px;
+  }
+}
+
