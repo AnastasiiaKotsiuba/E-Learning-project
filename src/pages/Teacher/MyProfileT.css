@@ -96,7 +96,7 @@ textarea {
 
 .tags-input {
   display: flex;
-  flex-direction: column; /* теги під полем вводу */
+  flex-direction: column; 
   gap: 6px;
   margin-top: 6px;
 }

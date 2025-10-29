@@ -10,27 +10,38 @@ import {
   doc,
 } from "firebase/firestore";
 import VideoCard from "../../components/VideoCard";
+import CourseEditorCard from "../../components/CourseEditorCard";
 import "./Home.css";
 
 const Home = () => {
   const navigate = useNavigate();
   const uid = auth.currentUser?.uid;
 
-  const [name, setName] = useState(() => {
-    if (!uid) return "User";
-    const saved = localStorage.getItem(`teacher_name_${uid}`);
-    return saved || "User";
-  });
-
-  const [userPhoto, setUserPhoto] = useState(() => {
-    if (!uid) return "/default-avatar.jpg";
-    const saved = localStorage.getItem(`teacher_photo_${uid}`);
-    return saved || "/default-avatar.jpg";
-  });
-
+  const [name, setName] = useState("Teacher");
+  const [userPhoto, setUserPhoto] = useState("/default-avatar.jpg");
   const [videos, setVideos] = useState([]);
+  const [courses, setCourses] = useState([]);
 
-  // Підвантаження відео вчителя
+  useEffect(() => {
+    if (!uid) return;
+
+    const fetchTeacherData = async () => {
+      const snap = await getDoc(doc(db, "teachers", uid));
+      if (snap.exists()) {
+        const data = snap.data();
+        const teacherName = data.name || "Teacher";
+        const teacherPhoto = data.photoURL || "/default-avatar.jpg";
+
+        setName(teacherName);
+        setUserPhoto(teacherPhoto);
+        localStorage.setItem(`teacher_name_${uid}`, teacherName);
+        localStorage.setItem(`teacher_photo_${uid}`, teacherPhoto);
+      }
+    };
+
+    fetchTeacherData();
+  }, [uid]);
+
   useEffect(() => {
     if (!uid) return;
 
@@ -46,51 +57,66 @@ const Home = () => {
   useEffect(() => {
     if (!uid) return;
 
-    const fetchTeacherData = async () => {
-      const snap = await getDoc(doc(db, "teachers", uid));
-      if (snap.exists()) {
-        const data = snap.data();
-        const teacherName = data.name || data.username || "User";
-        const teacherPhoto =
-          data.photoURL || auth.currentUser?.photoURL || "/default-avatar.jpg";
-
-        setName(teacherName);
-        setUserPhoto(teacherPhoto);
-        localStorage.setItem(`teacher_name_${uid}`, teacherName);
-        localStorage.setItem(`teacher_photo_${uid}`, teacherPhoto);
-      } else {
-        setName(auth.currentUser?.displayName || "User");
-        setUserPhoto(auth.currentUser?.photoURL || "/default-avatar.jpg");
-      }
+    const fetchCourses = async () => {
+      const q = query(collection(db, "courses"), where("teacherId", "==", uid));
+      const snapshot = await getDocs(q);
+      const loadedCourses = snapshot.docs.map((d) => ({
+        id: d.id,
+        ...d.data(),
+      }));
+      setCourses(loadedCourses);
     };
 
-    fetchTeacherData();
+    fetchCourses();
   }, [uid]);
 
   return (
     <div className="content">
-      <h1 className="headerText">
-        Hi, {name} 👋 <br /> Here are your videos
-      </h1>
+      <h1 className="headerText">Hi, {name} 👋</h1>
 
-      <div className="video-grid">
-        {videos.length > 0 ? (
-          videos.map((v) => (
-            <VideoCard
-              key={v.id}
-              id={v.id}
-              title={v.title}
-              teacher={name}
-              teacherPhotoURL={userPhoto}
-              filters={v.tags || []}
-              thumbnail={v.thumbnail || "/vCard.jpg"}
-              userRole="teacher" // ⚡ кнопка буде "Edit Video"
-            />
-          ))
-        ) : (
-          <p>No videos yet. Click “+” to add one 🎥</p>
-        )}
-      </div>
+      <section className="content-section">
+        <h2 className="homeUnderheader">Your Courses</h2>
+        <div className="video-grid">
+          {courses.length > 0 ? (
+            courses.map((course) => (
+              <CourseEditorCard
+                key={course.id}
+                id={course.id}
+                title={course.title}
+                teacher={name}
+                teacherPhotoURL={userPhoto}
+                thumbnail={course.thumbnail}
+                filters={course.tags || []}
+                status={course.status || "draft"}
+              />
+            ))
+          ) : (
+            <p>No courses yet. Create one!</p>
+          )}
+        </div>
+      </section>
+
+      <section className="content-section">
+        <h2 className="homeUnderheader">Your Videos</h2>
+        <div className="video-grid">
+          {videos.length > 0 ? (
+            videos.map((v) => (
+              <VideoCard
+                key={v.id}
+                id={v.id}
+                title={v.title}
+                teacher={name}
+                teacherPhotoURL={userPhoto}
+                filters={v.tags || []}
+                thumbnail={v.thumbnail || "/vCard.jpg"}
+                userRole="teacher"
+              />
+            ))
+          ) : (
+            <p>No videos yet. Click “+” to add one</p>
+          )}
+        </div>
+      </section>
 
       <button
         className="add-video-btn"

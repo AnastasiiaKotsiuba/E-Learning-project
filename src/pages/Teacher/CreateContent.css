@@ -1,0 +1,191 @@
+@import "./MyProfileT.css";
+
+input {
+  font-family: "Montserrat", sans-serif;
+}
+
+.teacher-profile {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.toggle-buttons button {
+  margin-right: 30px;
+  margin-bottom: 30px;
+  border: none;
+  background-color: transparent;
+  font-size: 24px;
+  font-weight: bold;
+  color: #c9c9c9;
+  justify-content: center;
+  transition: 0.2s;
+}
+
+.toggle-buttons button.active {
+  color: #535353;
+}
+
+.toggle-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.desc-input {
+  height: 140px;
+}
+
+.page-header-title {
+  max-width: 900px;
+  margin: 0 auto 20px auto;
+  color: #535353;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.profile-card {
+  display: block;
+  gap: unset;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+}
+
+.form-main-layout {
+  display: flex;
+  gap: 40px;
+  margin-bottom: 25px;
+}
+
+.video-preview-area {
+  width: 180px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.thumbnail-placeholder {
+  display: block;
+  margin: auto;
+}
+
+.thumbnail-cover {
+  width: 200px;
+  height: 200px;
+  border-radius: 15px;
+  border: 2px dashed #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  background: #fafafa;
+}
+
+.thumbnail-photo {
+   width: 200px;
+  height: 200px;
+  border-radius: 15px;
+  display: flex;
+  margin: auto;
+  object-fit: cover;
+}
+
+.upload-url input {
+  width: 190px;
+  margin-top: 20px;
+}
+
+.video-thumbnail-preview {
+  width: 160px;
+  height: 120px;
+  border-radius: 4px;
+  object-fit: cover;
+  margin-top: 0;
+}
+
+.video-fields-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-field {
+  margin-bottom: 20px;
+}
+
+.profile-field label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.profile-field input,
+.profile-field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 15px;
+}
+
+.profile-field p,
+.profile-field input,
+.profile-field textarea {
+  width: 100%;
+  margin-top: 5px;
+}
+
+.tags-section-full-width {
+  margin-top: 0;
+  margin-bottom: 25px;
+}
+
+.tags-input {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.tags-input input {
+  flex: 1;
+}
+
+.tags-input button.add-tag-btn {
+  flex-shrink: 0;
+  padding: 8px 15px;
+  border-radius: 8px;
+  border: none;
+  background-color: #4a90e2;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+  height: 38px;
+  line-height: 1;
+}
+
+.tags-input button.add-tag-btn:hover {
+  background-color: #357bd8;
+}
+
+.save-btn.full-width-save {
+  background-color: #a46dff;
+  color: white;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  font-weight: 600;
+  transition: background-color 0.2s;
+  font-size: 16px;
+}
+
+.save-btn.full-width-save:hover {
+  background-color: #8c57e6;
+}

@@ -1,5 +1,5 @@
-.content {
-  margin: 60px 70px;
+.content-section {
+  margin-bottom: 70px;
 }
 
 .teacher-profile {
@@ -94,7 +94,7 @@ textarea {
 
 .tags-input {
   display: flex;
-  flex-direction: column; /* теги під полем вводу */
+  flex-direction: column; 
   gap: 6px;
   margin-top: 6px;
 }
@@ -202,4 +202,8 @@ textarea {
 
 .add-video-btn:hover {
   background-color: #90bff2;
+}
+
+.homeUnderheader{
+  font-size: 20px;
 }

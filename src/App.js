@@ -13,12 +13,13 @@ import Lessons from "../../tryapp/src/pages/Student/Lessons";
 import TeachersPage from "../../tryapp/src/pages/Student/Teachers";
 import Dashboard from "../../tryapp/src/pages/Student/Dashboard";
 import AuthPage from "../../tryapp/src/pages/Auth/AuthPage";
-import AddVideo from "../../tryapp/src/pages/Teacher/AddVideo";
+import AddVideo from "./pages/Teacher/CreateContent";
 import VideoPlayer from "../../tryapp/src/pages/Student/VideoPlayer";
 import Home from "../../tryapp/src/pages/Teacher/Home";
 import Chat from "../../tryapp/src/pages/Teacher/Chat";
 import MyProfileT from "../../tryapp/src/pages/Teacher/MyProfileT";
 import MyProfileS from "../../tryapp/src/pages/Student/MyProfileS";
+import CourseBuilder from "../../tryapp/src/pages/Teacher/CourseBuilder"; // НОВИЙ ІМПОРТ
 
 import { auth, db } from "../../tryapp/src/utils/firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -206,8 +207,13 @@ const App = () => {
             <Route path="/teacher/chat" element={<Chat />} />
             <Route path="/teacher/myprofile" element={<MyProfileT />} />
             <Route path="/teacher/addvideo" element={<AddVideo />} />
-            <Route path="*" element={<Navigate to="/teacher/home" replace />} />
             <Route path="/teacher/addvideo/:id" element={<AddVideo />} />
+            <Route
+              path="/teacher/course/:id/builder"
+              element={<CourseBuilder />}
+            />{" "}
+            {/* НОВИЙ РОУТ */}
+            <Route path="*" element={<Navigate to="/teacher/home" replace />} />
           </>
         )}
 
