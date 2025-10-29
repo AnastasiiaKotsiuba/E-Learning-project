@@ -154,8 +154,9 @@ button {
 }
 
 .tag {
-  padding: 5px 10px;
-  border-radius: 8px;
+  padding: 6px 20px;
+  font-weight: 400;
+  border-radius: 15px;
   margin-right: 5px;
   font-size: 14px;
 }

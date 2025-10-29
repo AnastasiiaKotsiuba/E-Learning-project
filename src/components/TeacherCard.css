@@ -8,8 +8,13 @@
   font-family: "Montserrat", sans-serif;
   color: #404040;
   text-align: center;
-  display: flex; /* Включає flexbox */
+  display: flex; 
   flex-direction: column;
+}
+
+.teacher-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(100, 100, 100, 0.3);
 }
 
 .teacher-header {
