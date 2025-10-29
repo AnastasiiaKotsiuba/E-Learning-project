@@ -211,8 +211,7 @@ const App = () => {
             <Route
               path="/teacher/course/:id/builder"
               element={<CourseBuilder />}
-            />{" "}
-            {/* НОВИЙ РОУТ */}
+            />
             <Route path="*" element={<Navigate to="/teacher/home" replace />} />
           </>
         )}
