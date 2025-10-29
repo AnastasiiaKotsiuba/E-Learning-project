@@ -8,8 +8,8 @@ import {
 
 import Header from "../../tryapp/src/components/Header";
 import TeacherHeader from "../../tryapp/src/components/TeacherHeader";
-
 import Courses from "../../tryapp/src/pages/Student/Courses";
+import Lessons from "../../tryapp/src/pages/Student/Lessons";
 import TeachersPage from "../../tryapp/src/pages/Student/Teachers";
 import Dashboard from "../../tryapp/src/pages/Student/Dashboard";
 import AuthPage from "../../tryapp/src/pages/Auth/AuthPage";
@@ -57,7 +57,7 @@ const App = () => {
             currentUser.displayName ||
             "User",
           photoURL:
-            userData.photoURL || currentUser.photoURL || "/default-avatar.png",
+            userData.photoURL || currentUser.photoURL || "/default-avatar.jpg",
         });
       } else {
         setUser(null);
@@ -107,7 +107,7 @@ const App = () => {
       ...prev,
       name: loginData.username || prev?.name,
       role: loginData.role || prev?.role,
-      photoURL: prev?.photoURL || "/default-avatar.png",
+      photoURL: prev?.photoURL || "/default-avatar.jpg",
     }));
   };
 
@@ -121,13 +121,13 @@ const App = () => {
           searchTerm={searchTerm}
           onSearchChange={handleSearchChange}
           onLogout={handleLogout}
-          photoURL={user.photoURL || "/default-avatar.png"}
+          photoURL={user.photoURL || "/default-avatar.jpg"}
         />
       )}
       {user?.role === "teacher" && (
         <TeacherHeader
           onLogout={handleLogout}
-          photoURL={user.photoURL || "/default-avatar.png"}
+          photoURL={user.photoURL || "/default-avatar.jpg"}
         />
       )}
 
@@ -148,9 +148,19 @@ const App = () => {
         {user?.role === "student" && (
           <>
             <Route
-              path="/courses"
+              path="/Courses"
               element={
                 <Courses
+                  recommendedVideos={videosData}
+                  searchTerm={searchTerm}
+                  userName={user.name}
+                />
+              }
+            />
+            <Route
+              path="/Lessons"
+              element={
+                <Lessons
                   recommendedVideos={videosData}
                   searchTerm={searchTerm}
                   userName={user.name}
@@ -177,8 +187,11 @@ const App = () => {
                 />
               }
             />
-            <Route path="/student/myprofile" element={<MyProfileS />} />
-            <Route path="*" element={<Navigate to="/courses" replace />} />
+            <Route
+              path="/student/myprofile"
+              element={<MyProfileS user={user} setUser={setUser} />}
+            />
+            <Route path="*" element={<Navigate to="/Lessons" replace />} />
             <Route
               path="/video/:id"
               element={<VideoPlayer videos={videosData} user={user} />}

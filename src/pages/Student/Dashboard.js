@@ -17,7 +17,7 @@ const Dashboard = ({
 
   useEffect(() => {
     if (!userId) return;
-    const savedV = localStorage.getItem(`savedCourses_${userId}`);
+    const savedV = localStorage.getItem(`savedLessons_${userId}`);
     setSavedVideoIds(savedV ? JSON.parse(savedV).map(String) : []);
     const savedT = localStorage.getItem(`savedTeachers_${userId}`);
     setSavedTeacherIds(savedT ? JSON.parse(savedT).map(String) : []);
@@ -34,7 +34,7 @@ const Dashboard = ({
           email: data.email || "No email",
           description: data.description || "",
           tags: Array.isArray(data.tags) ? data.tags : [],
-          photoURL: data.photoURL || "/default-avatar.png",
+          photoURL: data.photoURL || "/default-avatar.jpg",
         };
       });
       setTeachersMap(map);
@@ -48,7 +48,7 @@ const Dashboard = ({
       ? savedVideoIds.filter((v) => v !== strId)
       : [...savedVideoIds, strId];
     setSavedVideoIds(updated);
-    localStorage.setItem(`savedCourses_${userId}`, JSON.stringify(updated));
+    localStorage.setItem(`savedLessons_${userId}`, JSON.stringify(updated));
   };
 
   const handleSaveTeacher = (id) => {
@@ -98,10 +98,10 @@ const Dashboard = ({
   return (
     <div className="dashboard">
       <div className="content">
-        <h2 className="headerText">📘 Courses</h2>
+        <h2 className="headerText">📘 Lessons</h2>
         <div className="cardContainer">
           {filteredVideos.length === 0 ? (
-            <p>No saved courses found</p>
+            <p>No saved Lessons found</p>
           ) : (
             filteredVideos.map((video) => (
               <VideoCard
@@ -111,7 +111,7 @@ const Dashboard = ({
                 teacher={video?.teacher || "Unknown"}
                 teacherPhotoURL={
                   teachersMap[video?.teacherId]?.photoURL ||
-                  "/default-avatar.png"
+                  "/default-avatar.jpg"
                 }
                 thumbnail={video?.thumbnail || "/vCard.jpg"}
                 filters={Array.isArray(video?.tags) ? video.tags : []}

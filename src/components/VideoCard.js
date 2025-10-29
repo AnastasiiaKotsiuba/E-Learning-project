@@ -41,10 +41,10 @@ const VideoCard = ({
 
       <div className="teacherCard">
         <img
-          src={teacherPhotoURL || "/default-avatar.png"}
+          src={teacherPhotoURL || "/default-avatar.jpg"}
           alt="teacher avatar"
           className="teacherImg"
-          onError={(e) => (e.target.src = "/default-avatar.png")}
+          onError={(e) => (e.target.src = "/default-avatar.jpg")}
         />
         <h2>{teacher}</h2>
         {onSave && (

@@ -2,15 +2,15 @@ import React, { useState, useEffect } from "react";
 import VideoCard from "../../components/VideoCard";
 import { auth, db } from "../../utils/firebase";
 import { doc, getDoc, collection, getDocs } from "firebase/firestore";
-import "./Courses.css";
+import "./Lessons.css";
 
-const Courses = ({ recommendedVideos = [], searchTerm = "" }) => {
-  const uid = auth.currentUser?.uid;
-  const [name, setName] = useState(() => {
-    if (!uid) return "User";
-    const saved = localStorage.getItem(`username_${uid}`);
-    return saved || "User";
-  });
+const Lessons = ({ recommendedVideos = [], searchTerm = "" }) => {
+const uid = auth.currentUser?.uid;
+const [name, setName] = useState(() => {
+  if (!uid) return "User";
+  const saved = localStorage.getItem(`username_${uid}`);
+  return saved || "User";
+});
   const [teachersMap, setTeachersMap] = useState({});
 
   useEffect(() => {
@@ -41,13 +41,13 @@ const Courses = ({ recommendedVideos = [], searchTerm = "" }) => {
 
   const [savedIds, setSavedIds] = useState(() => {
     if (!uid) return [];
-    const saved = localStorage.getItem(`savedCourses_${uid}`);
+    const saved = localStorage.getItem(`savedLessons_${uid}`);
     return saved ? JSON.parse(saved).map(String) : [];
   });
 
   useEffect(() => {
     if (!uid) return;
-    localStorage.setItem(`savedCourses_${uid}`, JSON.stringify(savedIds));
+    localStorage.setItem(`savedLessons_${uid}`, JSON.stringify(savedIds));
   }, [savedIds, uid]);
 
   const handleSave = (id) => {
@@ -82,7 +82,7 @@ const Courses = ({ recommendedVideos = [], searchTerm = "" }) => {
         </h1>
         <div className="cardContainer">
           {videosToDisplay.length === 0 ? (
-            <p>No Courses found</p>
+            <p>No Lessons found</p>
           ) : (
             videosToDisplay.map((video) => (
               <VideoCard
@@ -106,4 +106,4 @@ const Courses = ({ recommendedVideos = [], searchTerm = "" }) => {
   );
 };
 
-export default Courses;
+export default Lessons;

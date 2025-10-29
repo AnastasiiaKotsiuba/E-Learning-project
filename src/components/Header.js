@@ -26,12 +26,15 @@ const Header = ({ searchTerm, onSearchChange, onLogout, photoURL }) => {
         src="/logo.svg"
         alt="logo"
         className="logo"
-        onClick={() => navigate("/courses")}
+        onClick={() => navigate("/Lessons")}
       />
 
       <ul className="navbar">
         <li>
-          <Link to="/courses">Courses</Link>
+          <Link to="/Courses">Courses</Link>
+        </li>
+        <li>
+          <Link to="/Lessons">Lessons</Link>
         </li>
         <li>
           <Link to="/teachers">Teachers</Link>
@@ -47,10 +50,10 @@ const Header = ({ searchTerm, onSearchChange, onLogout, photoURL }) => {
         <div className="user-menu" ref={menuRef}>
           <button className="user" onClick={toggleMenu}>
             <img
-              src={photoURL || "/default-avatar.png"}
+              src={photoURL || "/default-avatar.jpg"}
               alt="user avatar"
               className="user-avatar"
-              onError={(e) => (e.target.src = "/default-avatar.png")}
+              onError={(e) => (e.target.src = "/default-avatar.jpg")}
             />
           </button>
 

@@ -1,10 +1,10 @@
 import React from "react";
-import "./TeacherCard.css";
+import "./CourseCard.css";
 
-const TeacherCard = ({
+const CourseCard = ({
+  title,
+  teacherPhotoURL,
   name,
-  description,
-  email,
   tags = [],
   photoURL,
   id,
@@ -16,16 +16,16 @@ const TeacherCard = ({
   };
 
   return (
-    <div className="teacher-card">
-      <div className="teacher-header">
+    <div className="course-card">
+      <div className="course-header">
         <div className="avatar-wrapper">
           <img
             src={photoURL || "/default-avatar.jpg"}
-            alt="teacherImg"
-            className="teacher-avatar"
+            alt="courseImg"
+            className="course-avatar"
           />
         </div>
-        <div className="teacher-info">
+        <div className="course-info">
           <h2>{name}</h2>
           <p className="titleCard">{email || "No email"}</p>{" "}
         </div>
@@ -51,10 +51,10 @@ const TeacherCard = ({
         )}
       </div>
 
-      <p className="teacher-description">{description}</p>
+      <p className="course-description">{description}</p>
       <button className="show-more-btn">Show more</button>
     </div>
   );
 };
 
-export default TeacherCard;
+export default CourseCard;

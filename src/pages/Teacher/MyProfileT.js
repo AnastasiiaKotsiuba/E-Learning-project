@@ -93,7 +93,7 @@ const MyProfileT = () => {
       <div className="profile-card">
         <div className="profile-left">
           <img
-            src={teacherData.photoURL || "/default-avatar.png"}
+            src={teacherData.photoURL || "/default-avatar.jpg"}
             alt="Teacher"
             className="teacher-photo"
           />

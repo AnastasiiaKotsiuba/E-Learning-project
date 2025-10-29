@@ -84,7 +84,7 @@ const VideoPlayer = ({ videos, user }) => {
         text: comment.trim(),
         authorId: user.uid,
         authorName: user.name || "Anonymous",
-        authorPhoto: user.photoURL || "/default-avatar.png",
+        authorPhoto: user.photoURL || "/default-avatar.jpg",
         createdAt: serverTimestamp(),
       });
       setComment("");
@@ -152,7 +152,7 @@ const VideoPlayer = ({ videos, user }) => {
             <div className="video-tags">
               {video.tags?.map((tag, i) => (
                 <span key={i} className="tag">
-                  #{tag}
+                  {tag}
                 </span>
               ))}
             </div>
@@ -163,7 +163,7 @@ const VideoPlayer = ({ videos, user }) => {
               {user ? (
                 <form onSubmit={handleAddComment} className="comment-form">
                   <img
-                    src={user.photoURL || "/default-avatar.png"}
+                    src={user.photoURL || "/default-avatar.jpg"}
                     alt="avatar"
                     className="comment-avatar"
                   />
@@ -191,7 +191,7 @@ const VideoPlayer = ({ videos, user }) => {
                   <div key={c.id} className="comment">
                     <div className="comment-header">
                       <img
-                        src={c.authorPhoto || "/default-avatar.png"}
+                        src={c.authorPhoto || "/default-avatar.jpg"}
                         alt={c.authorName}
                         className="comment-avatar"
                       />

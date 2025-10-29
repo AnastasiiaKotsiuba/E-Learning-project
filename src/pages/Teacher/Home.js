@@ -23,9 +23,9 @@ const Home = () => {
   });
 
   const [userPhoto, setUserPhoto] = useState(() => {
-    if (!uid) return "/default-avatar.png";
+    if (!uid) return "/default-avatar.jpg";
     const saved = localStorage.getItem(`teacher_photo_${uid}`);
-    return saved || "/default-avatar.png";
+    return saved || "/default-avatar.jpg";
   });
 
   const [videos, setVideos] = useState([]);
@@ -52,7 +52,7 @@ const Home = () => {
         const data = snap.data();
         const teacherName = data.name || data.username || "User";
         const teacherPhoto =
-          data.photoURL || auth.currentUser?.photoURL || "/default-avatar.png";
+          data.photoURL || auth.currentUser?.photoURL || "/default-avatar.jpg";
 
         setName(teacherName);
         setUserPhoto(teacherPhoto);
@@ -60,7 +60,7 @@ const Home = () => {
         localStorage.setItem(`teacher_photo_${uid}`, teacherPhoto);
       } else {
         setName(auth.currentUser?.displayName || "User");
-        setUserPhoto(auth.currentUser?.photoURL || "/default-avatar.png");
+        setUserPhoto(auth.currentUser?.photoURL || "/default-avatar.jpg");
       }
     };
 

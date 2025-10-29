@@ -4,7 +4,7 @@ import "./Header.css";
 
 const TeacherHeader = ({ onLogout, photoURL }) => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [avatar, setAvatar] = useState("/default-avatar.png");
+  const [avatar, setAvatar] = useState("/default-avatar.jpg");
   const menuRef = useRef();
   const navigate = useNavigate();
 
@@ -12,7 +12,7 @@ const TeacherHeader = ({ onLogout, photoURL }) => {
     if (photoURL && photoURL !== "") {
       setAvatar(photoURL);
     } else {
-      setAvatar("/default-avatar.png");
+      setAvatar("/default-avatar.jpg");
     }
   }, [photoURL]);
 
@@ -53,7 +53,7 @@ const TeacherHeader = ({ onLogout, photoURL }) => {
               src={avatar}
               alt="teacher avatar"
               className="user-avatar"
-              onError={(e) => (e.target.src = "/default-avatar.png")}
+              onError={(e) => (e.target.src = "/default-avatar.jpg")}
             />
           </button>
 

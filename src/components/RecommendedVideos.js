@@ -33,7 +33,7 @@ const RecommendedVideos = ({ currentVideoId, videos, currentTags = [] }) => {
             <div className="rec-tags">
               {(video.tags || []).slice(0, 3).map((tag, i) => (
                 <span key={i} className="rec-tag">
-                  #{tag}
+                  {tag}
                 </span>
               ))}
             </div>

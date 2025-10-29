@@ -5,35 +5,42 @@ import "./MyProfileS.css";
 
 const MyProfileS = ({ user, setUser }) => {
   const [studentData, setStudentData] = useState({
-    name: "",
-    photoURL: "",
-    email: "",
+    name: user?.name || "",
+    photoURL: user?.photoURL || "",
+    email: user?.email || auth.currentUser?.email || "",
   });
   const [isEditing, setIsEditing] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!user || !user.uid);
 
   const currentUser = auth.currentUser;
 
   useEffect(() => {
+    if (user && user.uid) {
+      setLoading(false);
+    }
+
     const fetchStudentData = async () => {
       if (!currentUser) return;
       try {
         const docRef = doc(db, "users", currentUser.uid);
         const docSnap = await getDoc(docRef);
+
+        let dataToSet = {
+          name: user?.name || "", 
+          photoURL: user?.photoURL || "",
+          email: currentUser.email,
+        };
+
         if (docSnap.exists()) {
           const data = docSnap.data();
-          setStudentData({
-            name: data.name || "",
-            photoURL: data.photoURL || "",
+          dataToSet = {
+            name: data.name || user?.name || "",
+            photoURL: data.photoURL || user?.photoURL || "",
             email: data.email || currentUser.email,
-          });
-        } else {
-          setStudentData({
-            name: "",
-            photoURL: "",
-            email: currentUser.email,
-          });
+          };
         }
+
+        setStudentData(dataToSet);
       } catch (err) {
         console.error("Error fetching student data:", err);
       } finally {
@@ -41,7 +48,7 @@ const MyProfileS = ({ user, setUser }) => {
       }
     };
     fetchStudentData();
-  }, [currentUser]);
+  }, [currentUser, user]); 
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -57,7 +64,6 @@ const MyProfileS = ({ user, setUser }) => {
         { merge: true }
       );
 
-      // Live-оновлення Header
       setUser((prev) => ({
         ...prev,
         name: studentData.name,
@@ -80,7 +86,7 @@ const MyProfileS = ({ user, setUser }) => {
       <div className="profile-card">
         <div className="profile-left">
           <img
-            src={studentData.photoURL || "/default-avatar.png"}
+            src={studentData.photoURL || "/default-avatar.jpg"}
             alt="Student"
             className="student-photo"
           />
