@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { auth, db } from "../../utils/firebase";
-import { doc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  deleteDoc,
+  serverTimestamp,
+} from "firebase/firestore";
 import "./CourseBuilder.css";
 
 const CourseBuilder = () => {
@@ -21,8 +27,8 @@ const CourseBuilder = () => {
 
   const [newTag, setNewTag] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  // === Завантажуємо курс ===
   useEffect(() => {
     const fetchCourse = async () => {
       if (!id) return;
@@ -46,7 +52,18 @@ const CourseBuilder = () => {
     fetchCourse();
   }, [id]);
 
-  // === Додаємо тег ===
+  useEffect(() => {
+    if (showDeleteModal) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [showDeleteModal]);
+
   const handleAddTag = () => {
     if (newTag.trim() && !course.tags.includes(newTag.trim())) {
       setCourse((prev) => ({ ...prev, tags: [...prev.tags, newTag.trim()] }));
@@ -54,7 +71,6 @@ const CourseBuilder = () => {
     }
   };
 
-  // === Видаляємо тег ===
   const handleRemoveTag = (tag) => {
     setCourse((prev) => ({
       ...prev,
@@ -62,7 +78,6 @@ const CourseBuilder = () => {
     }));
   };
 
-  // === Додаємо розділ ===
   const handleAddSection = () => {
     setSections((prev) => [
       ...prev,
@@ -70,14 +85,12 @@ const CourseBuilder = () => {
     ]);
   };
 
-  // === Оновлюємо розділ ===
   const handleSectionChange = (index, field, value) => {
     setSections((prev) =>
       prev.map((sec, i) => (i === index ? { ...sec, [field]: value } : sec))
     );
   };
 
-  // === Зберігаємо курс ===
   const handleSave = async () => {
     if (!course.title.trim()) {
       alert("Course title is required!");
@@ -85,14 +98,23 @@ const CourseBuilder = () => {
     }
 
     setLoading(true);
+
     try {
+      const hasSections = sections.some(
+        (s) => s.title.trim() || s.videoUrl.trim() || s.description.trim()
+      );
+
+      const filteredSections = sections.filter(
+        (s) => s.title.trim() || s.videoUrl.trim() || s.description.trim()
+      );
+
       await updateDoc(doc(db, "courses", id), {
         ...course,
-        sections: sections.filter(
-          (s) => s.title.trim() || s.videoUrl.trim() || s.description.trim()
-        ),
+        sections: filteredSections,
+        status: hasSections ? "ready" : "draft",
         updatedAt: serverTimestamp(),
       });
+
       alert("Course saved successfully!");
       navigate("/teacher/home");
     } catch (err) {
@@ -103,16 +125,69 @@ const CourseBuilder = () => {
     }
   };
 
+  const handleDelete = () => {
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    setShowDeleteModal(false);
+    setLoading(true);
+
+    try {
+      await deleteDoc(doc(db, "courses", id));
+      alert("Course deleted successfully!");
+      navigate("/teacher/home");
+    } catch (err) {
+      console.error("Error deleting course:", err);
+      alert("Failed to delete course.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
+  };
+
   return (
-    <div className="course-builder">
+    <div className="content">
       <div className="builder-header">
         <h1>Edit Course</h1>
-        <button className="save-btn" onClick={handleSave} disabled={loading}>
-          {loading ? "Saving..." : "Save Course"}
-        </button>
+        <div className="header-buttons">
+          <button
+            className="delete-course-btn"
+            onClick={handleDelete}
+            disabled={loading}
+          >
+            Delete Course
+          </button>
+          <button
+            className="save-course-btn"
+            onClick={handleSave}
+            disabled={loading}
+          >
+            {loading ? "Saving..." : "Save Course"}
+          </button>
+        </div>
       </div>
 
-      {/* === ОСНОВНА ІНФОРМАЦІЯ === */}
+      {showDeleteModal && (
+        <div className="modal-overlay" onClick={cancelDelete}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3>Delete Course?</h3>
+            <p>This action cannot be undone. Are you sure?</p>
+            <div className="modal-actions">
+              <button className="cancel-btn" onClick={cancelDelete}>
+                Cancel
+              </button>
+              <button className="confirm-delete-btn" onClick={confirmDelete}>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="course-info">
         <div className="form-group">
           <label>Course Title</label>
@@ -150,7 +225,6 @@ const CourseBuilder = () => {
               <button onClick={handleAddTag}>Add</button>
             </div>
 
-            {/* ВИПРАВЛЕНО: course.tags, а не formData.tags */}
             <div className="tags-list">
               {course.tags.map((tag, index) => (
                 <span key={index} className="tag-chip">
@@ -168,7 +242,6 @@ const CourseBuilder = () => {
         </div>
       </div>
 
-      {/* === РОЗДІЛИ === */}
       <div className="sections-container">
         <h2>Course Sections</h2>
         {sections.map((section, index) => (

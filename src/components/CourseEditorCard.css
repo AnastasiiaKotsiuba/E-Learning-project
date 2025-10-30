@@ -9,6 +9,7 @@
   height: 160px;
   width: 450px;
   overflow: hidden;
+  background-color: #fdfdfd;
 }
 
 .course-editor-card:hover {
@@ -30,12 +31,21 @@
   z-index: 2;
 }
 
-/* === ЛІВА ЧАСТИНА === */
+.draft-badge.draft {
+  background: #fdffb6;
+  color: rgb(64, 63, 61);
+}
+
+.draft-badge.ready {
+  background: #28c8b0;
+  color: white;
+}
+
 .course-left {
   flex-shrink: 0;
 }
 
-.course-thumb {
+.course-edit-thumb {
   width: 160px;
   height: 160px;
   border-radius: 12px;
@@ -148,6 +158,7 @@
 
 .edit-btn-container button {
     border-radius: 70px;
+    margin-right: 0;
 }
 
 @media (max-width: 768px) {
@@ -157,7 +168,7 @@
     width: 100%;
   }
 
-  .course-thumb {
+  .course-edit-thumb {
     width: 100%;
     height: 180px;
   }

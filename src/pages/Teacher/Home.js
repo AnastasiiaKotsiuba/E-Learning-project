@@ -63,6 +63,7 @@ const Home = () => {
       const loadedCourses = snapshot.docs.map((d) => ({
         id: d.id,
         ...d.data(),
+        status: d.data().status || "draft", 
       }));
       setCourses(loadedCourses);
     };
@@ -72,11 +73,11 @@ const Home = () => {
 
   return (
     <div className="content">
-      <h1 className="headerText">Hi, {name} 👋</h1>
+      <h1 className="headerText">Hi, {name}</h1>
 
       <section className="content-section">
         <h2 className="homeUnderheader">Your Courses</h2>
-        <div className="video-grid">
+        <div className="course-grid">
           {courses.length > 0 ? (
             courses.map((course) => (
               <CourseEditorCard
@@ -87,7 +88,7 @@ const Home = () => {
                 teacherPhotoURL={userPhoto}
                 thumbnail={course.thumbnail}
                 filters={course.tags || []}
-                status={course.status || "draft"}
+                status={course.status}
               />
             ))
           ) : (

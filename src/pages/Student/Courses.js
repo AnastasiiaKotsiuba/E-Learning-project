@@ -20,13 +20,25 @@ const Courses = ({ searchTerm = "" }) => {
   });
 
   const [courses, setCourses] = useState([]);
-  const [videos, setVideos] = useState([]); 
+  const [videos, setVideos] = useState([]);
   const [teachers, setTeachers] = useState([]);
-  const [tags, setTags] = useState([]); 
+  const [tags, setTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   const [selectedTeachers, setSelectedTeachers] = useState([]);
-  const [savedIds, setSavedIds] = useState([]);
   const [teachersMap, setTeachersMap] = useState({});
+
+  const [savedIds, setSavedIds] = useState(() => {
+    const user = auth.currentUser?.uid;
+    if (!user) return [];
+    const saved = localStorage.getItem(`savedCourses_${user}`);
+    return saved ? JSON.parse(saved).map(String) : [];
+  });
+
+  useEffect(() => {
+    if (uid) {
+      localStorage.setItem(`savedCourses_${uid}`, JSON.stringify(savedIds));
+    }
+  }, [savedIds, uid]);
 
   useEffect(() => {
     const fetchUserName = async () => {
@@ -88,18 +100,6 @@ const Courses = ({ searchTerm = "" }) => {
     });
     setTags([...uniqueTags]);
   }, [videos]);
-
-  useEffect(() => {
-    if (!uid) return;
-    const saved = localStorage.getItem(`savedCourses_${uid}`);
-    setSavedIds(saved ? JSON.parse(saved).map(String) : []);
-  }, [uid]);
-
-  useEffect(() => {
-    if (uid) {
-      localStorage.setItem(`savedCourses_${uid}`, JSON.stringify(savedIds));
-    }
-  }, [savedIds, uid]);
 
   const handleSave = (id) => {
     const strId = String(id);

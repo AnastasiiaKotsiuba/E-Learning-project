@@ -185,6 +185,12 @@ textarea {
   position: relative;
 }
 
+.course-grid{
+   display:inline-flex;
+    position: relative;
+    gap: 20px;
+}
+
 .add-video-btn {
   position: fixed;
   bottom: 40px;

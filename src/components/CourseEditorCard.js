@@ -1,4 +1,3 @@
-// src/components/CourseEditorCard.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import "./CourseEditorCard.css";
@@ -10,7 +9,7 @@ const CourseEditorCard = ({
   teacherPhotoURL,
   thumbnail,
   filters = [],
-  status = "draft",
+  status = "draft", 
 }) => {
   const navigate = useNavigate();
 
@@ -18,15 +17,21 @@ const CourseEditorCard = ({
     navigate(`/teacher/course/${id}/builder`);
   };
 
+  const isReady = status === "ready";
+  const badgeText = isReady ? "READY" : "DRAFT";
+  const buttonText = isReady ? "Edit Course" : "Finished Course";
+
   return (
     <div className="course-editor-card">
-      <div className="draft-badge">{status.toUpperCase()}</div>
+      <div className={`draft-badge ${isReady ? "ready" : "draft"}`}>
+        {badgeText}
+      </div>
 
       <div className="course-left">
         <img
           src={thumbnail || "/default-cover.jpg"}
           alt={title}
-          className="course-thumb"
+          className="course-edit-thumb"
           onError={(e) => (e.target.src = "/default-cover.png")}
         />
       </div>
@@ -59,7 +64,7 @@ const CourseEditorCard = ({
 
         <div className="edit-btn-container">
           <button className="edit-btn" onClick={handleEdit}>
-            Finished Course
+            {buttonText}
           </button>
         </div>
       </div>

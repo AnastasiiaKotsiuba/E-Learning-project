@@ -4,6 +4,7 @@ import { auth, db } from "../../utils/firebase";
 import { doc, getDoc, collection, addDoc, updateDoc } from "firebase/firestore";
 import "./CreateContent.css";
 
+
 const CreateContent = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -175,11 +176,11 @@ const CreateContent = () => {
           {formData.thumbnail ? (
             <div className="thumbnail-placeholder">
               <img
-                src={formData.thumbnail}
-                alt="Preview"
+                src={formData.thumbnail || "/default-cover.png"}
+                alt="Course preview"
                 className="thumbnail-photo"
+                onError={(e) => (e.target.src = "/default-cover.png")}
               />
-
               {mode === "course" && (
                 <div className="upload-url">
                   <input
