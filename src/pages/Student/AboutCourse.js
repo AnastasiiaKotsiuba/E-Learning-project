@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { db } from "../../utils/firebase";
 import { doc, getDoc, collection, onSnapshot } from "firebase/firestore";
 import RecommendedVideos from "../../components/RecommendedVideos";
@@ -7,6 +7,8 @@ import "./AboutCourse.css";
 
 const AboutCourse = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+
   const [course, setCourse] = useState(null);
   const [teacher, setTeacher] = useState(null);
   const [teacherVideos, setTeacherVideos] = useState([]);
@@ -57,6 +59,11 @@ const AboutCourse = () => {
 
   const lessonCount = course.sections?.length || 0;
 
+  // --- Навігація на CourseView ---
+  const handleStartCourse = () => {
+    navigate(`/course/${id}/view`);
+  };
+
   return (
     <div className="content">
       <div className="content-course">
@@ -68,8 +75,10 @@ const AboutCourse = () => {
               className="course-info-thumb"
               onError={(e) => (e.target.src = "/default-cover.png")}
             />
+
             <div className="course-main-text">
               <h2 className="course-info-title">{course.title}</h2>
+
               <div className="course-teacher">
                 <img
                   src={teacher?.photoURL || "/default-avatar.jpg"}
@@ -79,11 +88,15 @@ const AboutCourse = () => {
                 />
                 <span>{teacher?.name || course.teacher}</span>
               </div>
+
               <p className="course-lessons">
                 Lessons: {lessonCount > 0 ? lessonCount : "—"}
               </p>
+
               <div className="course-buy">
-                <button className="buy-btn">Start Course</button>
+                <button className="buy-btn" onClick={handleStartCourse}>
+                  Start Course
+                </button>
               </div>
             </div>
           </div>
@@ -97,10 +110,7 @@ const AboutCourse = () => {
         <div className="recommended-section">
           <h3>Videos from this teacher</h3>
           {teacherVideos.length > 0 ? (
-            <RecommendedVideos
-              videos={teacherVideos}
-              filterByTags={false} 
-            />
+            <RecommendedVideos videos={teacherVideos} filterByTags={false} />
           ) : (
             <p>No recommended videos found.</p>
           )}

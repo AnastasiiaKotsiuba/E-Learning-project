@@ -10,6 +10,7 @@ import Header from "../../tryapp/src/components/Header";
 import TeacherHeader from "../../tryapp/src/components/TeacherHeader";
 import Courses from "../../tryapp/src/pages/Student/Courses";
 import Lessons from "../../tryapp/src/pages/Student/Lessons";
+import CourseView from "../../tryapp/src/pages/Student/CourseView";
 import TeachersPage from "../../tryapp/src/pages/Student/Teachers";
 import Dashboard from "../../tryapp/src/pages/Student/Dashboard";
 import AuthPage from "../../tryapp/src/pages/Auth/AuthPage";
@@ -201,6 +202,10 @@ const App = () => {
             <Route
               path="/course/:id"
               element={<AboutCourse videos={videosData} user={user} />}
+            />
+            <Route
+              path="/course/:id/view"
+              element={<CourseView user={user} />}
             />
           </>
         )}
