@@ -15,11 +15,12 @@ import Dashboard from "../../tryapp/src/pages/Student/Dashboard";
 import AuthPage from "../../tryapp/src/pages/Auth/AuthPage";
 import AddVideo from "./pages/Teacher/CreateContent";
 import VideoPlayer from "../../tryapp/src/pages/Student/VideoPlayer";
+import AboutCourse from "../../tryapp/src/pages/Student/AboutCourse";
 import Home from "../../tryapp/src/pages/Teacher/Home";
 import Chat from "../../tryapp/src/pages/Teacher/Chat";
 import MyProfileT from "../../tryapp/src/pages/Teacher/MyProfileT";
 import MyProfileS from "../../tryapp/src/pages/Student/MyProfileS";
-import CourseBuilder from "../../tryapp/src/pages/Teacher/CourseBuilder"; // НОВИЙ ІМПОРТ
+import CourseBuilder from "../../tryapp/src/pages/Teacher/CourseBuilder"; 
 
 import { auth, db } from "../../tryapp/src/utils/firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -196,6 +197,10 @@ const App = () => {
             <Route
               path="/video/:id"
               element={<VideoPlayer videos={videosData} user={user} />}
+            />
+            <Route
+              path="/course/:id"
+              element={<AboutCourse videos={videosData} user={user} />}
             />
           </>
         )}

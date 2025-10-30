@@ -259,17 +259,6 @@ const CreateContent = () => {
                   placeholder="Enter course description"
                 ></textarea>
               </div>
-
-              <div className="profile-field">
-                <label>Price (USD):</label>
-                <input
-                  type="number"
-                  name="price"
-                  value={formData.price}
-                  onChange={handleChange}
-                  placeholder="Enter course price"
-                />
-              </div>
             </>
           )}
 

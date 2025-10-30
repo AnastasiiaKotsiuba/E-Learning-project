@@ -2,14 +2,21 @@ import React from "react";
 import { Link } from "react-router-dom";
 import "./RecommendedVideos.css";
 
-const RecommendedVideos = ({ currentVideoId, videos, currentTags = [] }) => {
+const RecommendedVideos = ({
+  currentVideoId,
+  videos,
+  currentTags = [],
+  filterByTags = true,
+}) => {
   if (!videos || videos.length === 0) return <p>No videos available.</p>;
 
-  const recommended = videos.filter(
-    (v) =>
-      v.id !== currentVideoId &&
-      v.tags?.some((tag) => currentTags.includes(tag))
-  );
+  const recommended = filterByTags
+    ? videos.filter(
+        (v) =>
+          v.id !== currentVideoId &&
+          v.tags?.some((tag) => currentTags.includes(tag))
+      )
+    : videos.filter((v) => v.id !== currentVideoId);
 
   if (recommended.length === 0)
     return <p className="no-recommendations">No recommended videos found.</p>;

@@ -38,8 +38,6 @@ const VideoPlayer = ({ videos, user }) => {
       return;
     }
 
-    console.log("Setting up comments listener for videoId:", id);
-
     const q = query(
       collection(db, "comments"),
       where("videoId", "==", id),

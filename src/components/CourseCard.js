@@ -1,5 +1,6 @@
 import React from "react";
 import "./CourseCard.css";
+import { useNavigate } from "react-router-dom";
 
 const CourseCard = ({
   id,
@@ -11,8 +12,23 @@ const CourseCard = ({
   onSave,
   isSaved,
 }) => {
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    navigate(`/course/${id}`);
+  };
+
+  const handleSaveClick = (e) => {
+    e.stopPropagation(); 
+    if (onSave) onSave(id);
+  };
+
   return (
-    <div className="course-card">
+    <div
+      className="course-card"
+      onClick={handleCardClick}
+      style={{ cursor: "pointer" }}
+    >
       <div className="course-left">
         <img
           src={thumbnail || "/default-cover.jpg"}
@@ -29,7 +45,7 @@ const CourseCard = ({
             src={isSaved ? "/SavedFilled.svg" : "/Saved.svg"}
             alt="save"
             className="savedFunc"
-            onClick={() => onSave && onSave(id)}
+            onClick={handleSaveClick}
           />
         </div>
 
