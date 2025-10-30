@@ -6,24 +6,27 @@ import {
   Navigate,
 } from "react-router-dom";
 
-import Header from "../../tryapp/src/components/Header";
-import TeacherHeader from "../../tryapp/src/components/TeacherHeader";
-import Courses from "../../tryapp/src/pages/Student/Courses";
-import Lessons from "../../tryapp/src/pages/Student/Lessons";
-import CourseView from "../../tryapp/src/pages/Student/CourseView";
-import TeachersPage from "../../tryapp/src/pages/Student/Teachers";
-import Dashboard from "../../tryapp/src/pages/Student/Dashboard";
-import AuthPage from "../../tryapp/src/pages/Auth/AuthPage";
-import AddVideo from "./pages/Teacher/CreateContent";
-import VideoPlayer from "../../tryapp/src/pages/Student/VideoPlayer";
-import AboutCourse from "../../tryapp/src/pages/Student/AboutCourse";
-import Home from "../../tryapp/src/pages/Teacher/Home";
-import Chat from "../../tryapp/src/pages/Teacher/Chat";
-import MyProfileT from "../../tryapp/src/pages/Teacher/MyProfileT";
-import MyProfileS from "../../tryapp/src/pages/Student/MyProfileS";
-import CourseBuilder from "../../tryapp/src/pages/Teacher/CourseBuilder"; 
+import Header from "./components/Header";
+import TeacherHeader from "./components/TeacherHeader";
 
-import { auth, db } from "../../tryapp/src/utils/firebase";
+import Courses from "./pages/Student/Courses";
+import Lessons from "./pages/Student/Lessons";
+import CourseView from "./pages/Student/CourseView";
+import TeachersPage from "./pages/Student/Teachers";
+import Dashboard from "./pages/Student/Dashboard";
+import VideoPlayer from "./pages/Student/VideoPlayer";
+import AboutCourse from "./pages/Student/AboutCourse";
+import MyProfileS from "./pages/Student/MyProfileS";
+
+import AddVideo from "./pages/Teacher/CreateContent";
+import Home from "./pages/Teacher/Home";
+import Chat from "./pages/Teacher/Chat";
+import MyProfileT from "./pages/Teacher/MyProfileT";
+import CourseBuilder from "./pages/Teacher/CourseBuilder";
+
+import AuthPage from "./pages/Auth/AuthPage";
+
+import { auth, db } from "./utils/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { collection, onSnapshot, doc, getDoc } from "firebase/firestore";
 
