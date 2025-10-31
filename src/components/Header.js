@@ -23,7 +23,7 @@ const Header = ({ searchTerm, onSearchChange, onLogout, photoURL }) => {
   return (
     <div id="header">
       <img
-        src="/logo.svg"
+        src="/Logo.svg"
         alt="logo"
         className="logo"
         onClick={() => navigate("/Lessons")}
