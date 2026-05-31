@@ -1,0 +1,124 @@
+.teacher-profile-page {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* ── Info card ── */
+.tp-card {
+  display: flex;
+  gap: 36px;
+  align-items: flex-start;
+  background: #fdfdfd;
+  border-radius: 24px;
+  box-shadow: 0 0 8px rgba(58, 58, 58, 0.12);
+  padding: 36px;
+  margin-bottom: 48px;
+}
+
+.tp-avatar {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.tp-card-right {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tp-name {
+  font-size: 26px;
+  font-weight: 700;
+  color: #2b2b2b;
+  margin: 0;
+}
+
+.tp-email {
+  font-size: 13px;
+  color: #909090;
+  margin: 0;
+}
+
+.tp-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.tp-tag {
+  padding: 5px 18px;
+  border-radius: 15px;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.tp-tag-1 {
+  background-color: #d3fbdc;
+  color: #6ad481;
+}
+
+.tp-tag-2 {
+  background-color: #ffecd6;
+  color: #f2b166;
+}
+
+.tp-tag-3 {
+  background-color: #f1e8ff;
+  color: #b98cff;
+}
+
+.tp-description {
+  font-size: 15px;
+  color: #606060;
+  line-height: 1.65;
+  margin: 4px 0 0;
+}
+
+/* ── Section ── */
+.tp-section {
+  margin-bottom: 48px;
+}
+
+.tp-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.tp-empty {
+  color: #909090;
+  font-size: 14px;
+}
+
+@media (max-width: 700px) {
+  .tp-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+    padding: 24px;
+  }
+  .tp-tags {
+    justify-content: center;
+  }
+  .tp-description {
+    text-align: left;
+  }
+}
+
+@media (max-width: 480px) {
+  .tp-avatar {
+    width: 100px;
+    height: 100px;
+  }
+  .tp-name {
+    font-size: 20px;
+  }
+  .tp-grid {
+    justify-content: center;
+  }
+}

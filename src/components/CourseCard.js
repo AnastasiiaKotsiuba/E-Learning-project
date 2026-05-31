@@ -11,6 +11,7 @@ const CourseCard = ({
   filters = [],
   onSave,
   isSaved,
+  description = "",
 }) => {
   const navigate = useNavigate();
 
@@ -57,6 +58,10 @@ const CourseCard = ({
           />
           <span className="teacher-name">{teacher}</span>
         </div>
+
+        {description && (
+          <p className="course-card-description">{description}</p>
+        )}
 
         <div className="tags-row">
           {filters.length > 0 ? (

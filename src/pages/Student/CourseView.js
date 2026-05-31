@@ -1,18 +1,29 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { db } from "../../utils/firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, collection, query, where, onSnapshot, serverTimestamp } from "firebase/firestore";
 import confetti from "canvas-confetti";
 import "./CourseView.css";
 import { auth } from "../../utils/firebase";
+import Certificate from "../../components/Certificate";
+import StarRating from "../../components/StarRating";
 
-const CourseView = () => {
+const CourseView = ({ user }) => {
   const { id } = useParams();
   const [course, setCourse] = useState(null);
   const [teacher, setTeacher] = useState(null);
   const [activeLesson, setActiveLesson] = useState(null);
   const [progress, setProgress] = useState(0);
   const [showCongrats, setShowCongrats] = useState(false);
+  const [showCertificate, setShowCertificate] = useState(false);
+  const studentName = user?.name || auth.currentUser?.displayName || "Student";
+
+  // Reviews
+  const [reviews, setReviews] = useState([]);
+  const [myRating, setMyRating] = useState(0);
+  const [myReviewText, setMyReviewText] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [hasMyReview, setHasMyReview] = useState(false);
 
 const userId = auth.currentUser?.uid;
 
@@ -67,7 +78,7 @@ const userId = auth.currentUser?.uid;
           courseId: id,
           progress: newProgress,
           activeLessonTitle: newLessonTitle,
-          updatedAt: new Date(),
+          updatedAt: serverTimestamp(),
         },
         { merge: true }
       );
@@ -93,6 +104,7 @@ const userId = auth.currentUser?.uid;
       setShowCongrats(true);
       launchConfetti();
       await saveProgress(100, activeLesson.title);
+      setTimeout(() => setShowCertificate(true), 2500);
     } else {
       const nextLesson = course.sections[currentIndex + 1];
       setActiveLesson(nextLesson);
@@ -139,6 +151,49 @@ const userId = auth.currentUser?.uid;
     await saveProgress(progress, lesson.title);
   };
 
+  // Load reviews for this course (no orderBy → no composite index needed)
+  useEffect(() => {
+    if (!id) return;
+    const q = query(collection(db, "reviews"), where("courseId", "==", id));
+    const unsub = onSnapshot(q, (snap) => {
+      const all = snap.docs
+        .map((d) => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+      setReviews(all);
+      const mine = all.find((r) => r.userId === auth.currentUser?.uid);
+      if (mine) {
+        setMyRating(mine.rating);
+        setMyReviewText(mine.text || "");
+        setHasMyReview(true);
+      } else {
+        setHasMyReview(false);
+      }
+    });
+    return () => unsub();
+  }, [id]);
+
+  const handleSubmitReview = async () => {
+    const uid = auth.currentUser?.uid;
+    if (!uid || myRating === 0) return;
+    setSubmitting(true);
+    try {
+      await setDoc(doc(db, "reviews", `${uid}_${id}`), {
+        courseId: id,
+        userId: uid,
+        userName: user?.name || "Student",
+        userPhoto: user?.photoURL || "/default-avatar.jpg",
+        rating: myRating,
+        text: myReviewText.trim(),
+        createdAt: new Date(),
+      }, { merge: true });
+    } catch (err) {
+      console.error("Error submitting review:", err);
+    } finally {
+      setSubmitting(false);
+      setHasMyReview(true);
+    }
+  };
+
   if (!course)
     return <div className="loading">Loading course information...</div>;
 
@@ -150,14 +205,21 @@ const userId = auth.currentUser?.uid;
 
   return (
     <div className="content">
+      {showCertificate && (
+        <Certificate
+          studentName={studentName}
+          courseTitle={course?.title || ""}
+          onClose={() => setShowCertificate(false)}
+        />
+      )}
       <div className="course-view">
         <div className="course-top">
           <div className="video-section">
-            <div className="video-player">
+            <div className="course-video-player">
               {activeLesson?.videoUrl ? (
                 <iframe
                   width="100%"
-                  height="400px"
+                  height="100%"
                   src={activeLesson.videoUrl.replace("watch?v=", "embed/")}
                   title={activeLesson.title}
                   frameBorder="0"
@@ -184,7 +246,16 @@ const userId = auth.currentUser?.uid;
                   {isLastLesson ? "Complete Course" : "Complete Lesson"}
                 </button>
               ) : (
-                <div className="congrats-text">🎉 Congratulations! 🎉</div>
+                <div>
+                  <div className="congrats-text">🎉 Congratulations! 🎉</div>
+                  <button
+                    className="complete-lesson-btn"
+                    style={{ marginTop: 16 }}
+                    onClick={() => setShowCertificate(true)}
+                  >
+                    🏆 Get Certificate
+                  </button>
+                </div>
               )}
             </div>
           </div>
@@ -235,6 +306,60 @@ const userId = auth.currentUser?.uid;
           </div>
         </div>
       </div>
+
+      {/* ── Review section: only visible after course completion ── */}
+      {progress >= 100 && (
+        <div className="course-review-section">
+          {!hasMyReview ? (
+            <>
+              <h3>Rate this course</h3>
+              <div className="review-form">
+                <p className="review-form-label">Your rating:</p>
+                <StarRating value={myRating} onChange={setMyRating} size={28} />
+                <textarea
+                  className="review-textarea"
+                  placeholder="Share your thoughts about this course (optional)..."
+                  value={myReviewText}
+                  onChange={(e) => setMyReviewText(e.target.value)}
+                  rows={3}
+                />
+                <button
+                  className="review-submit-btn"
+                  onClick={handleSubmitReview}
+                  disabled={submitting || myRating === 0}
+                >
+                  {submitting ? "Saving..." : "Submit Review"}
+                </button>
+              </div>
+            </>
+          ) : (
+            <p className="review-already-submitted">✅ You have already rated this course. Thank you!</p>
+          )}
+
+          {reviews.length > 0 && (
+            <div className="reviews-list" style={{ marginTop: 24 }}>
+              <h4 style={{ marginBottom: 12, color: "#535353" }}>All Reviews</h4>
+              {reviews.map((r) => (
+                <div key={r.id} className="review-card">
+                  <div className="review-header">
+                    <img
+                      src={r.userPhoto || "/default-avatar.jpg"}
+                      alt={r.userName}
+                      className="review-avatar"
+                      onError={(e) => (e.target.src = "/default-avatar.jpg")}
+                    />
+                    <div>
+                      <p className="review-author">{r.userName}</p>
+                      <StarRating value={r.rating} readOnly size={14} />
+                    </div>
+                  </div>
+                  {r.text && <p className="review-text">{r.text}</p>}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

@@ -6,6 +6,18 @@
   font-family: "Montserrat", sans-serif;
 }
 
+@media (max-width: 600px) {
+  .auth-page {
+    margin: 40px 16px;
+  }
+  .auth-form .auth-input,
+  .auth-form button,
+  .role-selector {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
 .auth-buttons {
   display: flex;
   gap: 10px;

@@ -3,7 +3,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { auth, db } from "../../utils/firebase";
 import "./MyProfileT.css";
 
-const MyProfileT = () => {
+const MyProfileT = ({ setUser }) => {
   const [teacherData, setTeacherData] = useState({
     name: "",
     description: "",
@@ -23,15 +23,23 @@ const MyProfileT = () => {
       try {
         const docRef = doc(db, "teachers", currentUser.uid);
         const docSnap = await getDoc(docRef);
+        // Also fetch users doc to get username set during registration
+        const userRef = doc(db, "users", currentUser.uid);
+        const userSnap = await getDoc(userRef);
+        const fallbackName = userSnap.exists()
+          ? userSnap.data().username || userSnap.data().name || ""
+          : "";
+
         if (docSnap.exists()) {
           const data = docSnap.data();
           setTeacherData({
             ...data,
+            name: data.name || fallbackName,
             email: data.email || currentUser.email,
           });
         } else {
           setTeacherData({
-            name: "",
+            name: fallbackName,
             description: "",
             tags: [],
             photoURL: "",
@@ -77,6 +85,14 @@ const MyProfileT = () => {
         merge: true,
       });
       setIsEditing(false);
+      // Update avatar in the header immediately
+      if (setUser) {
+        setUser((prev) => ({
+          ...prev,
+          photoURL: teacherData.photoURL || prev.photoURL,
+          name: teacherData.name || prev.name,
+        }));
+      }
       alert("Profile updated successfully ✅");
     } catch (err) {
       console.error("Error saving data:", err);

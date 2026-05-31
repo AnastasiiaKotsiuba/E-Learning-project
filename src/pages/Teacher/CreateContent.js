@@ -171,7 +171,7 @@ const CreateContent = () => {
         </button>
       </div>
 
-      <div className="profile-card">
+      <div className="create-content-card">
         <div className="profile-left">
           {formData.thumbnail ? (
             <div className="thumbnail-placeholder">

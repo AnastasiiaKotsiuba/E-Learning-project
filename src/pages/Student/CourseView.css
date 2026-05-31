@@ -9,7 +9,7 @@
   gap: 30px;
 }
 
-.video-player {
+.course-video-player {
   flex: 2.25;
   background: #000;
   border-radius: 10px;
@@ -146,6 +146,52 @@
   color: #6078da;
   margin-top: 15px;
   animation: fadeIn 1s ease-in-out;
+}
+
+.review-already-submitted {
+  font-size: 15px;
+  color: #4a7c59;
+  background: #f0faf4;
+  border: 1px solid #b2e8cc;
+  border-radius: 8px;
+  padding: 12px 18px;
+  margin-bottom: 16px;
+}
+
+.course-review-section {
+  margin-top: 40px;
+  padding-top: 32px;
+  border-top: 1px solid #eee;
+  max-width: 700px;
+}
+
+.course-review-section h3 {
+  font-size: 20px;
+  margin: 0 0 20px;
+  color: #535353;
+}
+
+@media (max-width: 900px) {
+  .course-top {
+    flex-direction: column;
+  }
+  .course-video-player {
+    height: 50vw;
+    min-height: 240px;
+  }
+  .course-sidebar {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+@media (max-width: 600px) {
+  .course-video-player {
+    height: 56vw;
+  }
+  .lesson-info-box h3 {
+    margin-top: 20px;
+  }
 }
 
 @keyframes fadeIn {

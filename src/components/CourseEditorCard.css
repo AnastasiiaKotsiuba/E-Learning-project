@@ -1,15 +1,17 @@
 .course-editor-card {
   position: relative;
   display: flex;
+  align-items: center;
   border-radius: 20px;
   box-shadow: 0 0 5px rgba(58, 58, 58, 0.25);
   padding: 20px;
-  gap: 16px;
+  gap: 20px;
   transition: transform 0.2s, box-shadow 0.2s;
-  height: 160px;
-  width: 450px;
+  width: 620px;
+  max-width: 100%;
   overflow: hidden;
   background-color: #fdfdfd;
+  box-sizing: border-box;
 }
 
 .course-editor-card:hover {
@@ -46,10 +48,11 @@
 }
 
 .course-edit-thumb {
-  width: 160px;
-  height: 160px;
+  width: 200px;
+  height: 200px;
   border-radius: 12px;
   object-fit: cover;
+  flex-shrink: 0;
 }
 
 .course-right {
@@ -58,6 +61,7 @@
   flex-direction: column;
   justify-content: space-between;
   min-width: 0;
+  align-self: stretch;
 }
 
 .course-header {
@@ -126,6 +130,18 @@
 .tag-course:nth-child(3) {
   background-color: #f1e8ff;
   color: #b98cff;
+}
+
+.course-editor-description {
+  font-size: 12px;
+  color: #888;
+  margin: 8px 0 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.5;
 }
 
 .edit-btn-container {

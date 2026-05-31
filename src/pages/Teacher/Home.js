@@ -89,6 +89,7 @@ const Home = () => {
                 thumbnail={course.thumbnail}
                 filters={course.tags || []}
                 status={course.status}
+                description={course.description || ""}
               />
             ))
           ) : (

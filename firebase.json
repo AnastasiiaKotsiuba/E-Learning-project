@@ -1,0 +1,16 @@
+{
+  "emulators": {
+    "firestore": {
+      "port": 3000,
+      "host": "localhost",
+      "java_args": ["-Xmx4g"]
+    },
+    "firestore": {
+      "port": 3000
+    },
+    "ui": {
+      "enabled": true
+    },
+    "singleProjectMode": true
+  }
+}

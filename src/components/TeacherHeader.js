@@ -37,14 +37,7 @@ const TeacherHeader = ({ onLogout, photoURL }) => {
         onClick={() => navigate("/teacher/home")}
       />
 
-      <ul className="navbar">
-        <li>
-          <Link to="/teacher/home">Home</Link>
-        </li>
-        <li>
-          <Link to="/teacher/chat">Chat</Link>
-        </li>
-      </ul>
+      <ul className="navbar"></ul>
 
       <div className="nav-actions">
         <div className="user-menu" ref={menuRef}>

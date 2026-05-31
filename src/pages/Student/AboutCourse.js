@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { db } from "../../utils/firebase";
-import { doc, getDoc, collection, onSnapshot } from "firebase/firestore";
+import { doc, getDoc, collection, onSnapshot, query, where } from "firebase/firestore";
 import RecommendedVideos from "../../components/RecommendedVideos";
+import StarRating from "../../components/StarRating";
 import "./AboutCourse.css";
 
 const AboutCourse = () => {
@@ -13,6 +14,8 @@ const AboutCourse = () => {
   const [teacher, setTeacher] = useState(null);
   const [teacherVideos, setTeacherVideos] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -54,6 +57,23 @@ const AboutCourse = () => {
     return () => unsubscribe();
   }, [course?.teacherId]);
 
+  // Load reviews (no orderBy to avoid needing a composite index)
+  useEffect(() => {
+    if (!id) return;
+    const q = query(collection(db, "reviews"), where("courseId", "==", id));
+    const unsub = onSnapshot(q, (snap) => {
+      const all = snap.docs
+        .map((d) => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+      setReviews(all);
+    });
+    return () => unsub();
+  }, [id]);
+
+  const avgRating = reviews.length
+    ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
+    : null;
+
   if (loading || !course)
     return <div className="loading">Loading course...</div>;
 
@@ -83,7 +103,7 @@ const AboutCourse = () => {
                 <img
                   src={teacher?.photoURL || "/default-avatar.jpg"}
                   alt={teacher?.name || course.teacher}
-                  className="teacher-avatar"
+                  className="course-teacher-avatar"
                   onError={(e) => (e.target.src = "/default-avatar.jpg")}
                 />
                 <span>{teacher?.name || course.teacher}</span>
@@ -92,6 +112,13 @@ const AboutCourse = () => {
               <p className="course-lessons">
                 Lessons: {lessonCount > 0 ? lessonCount : "—"}
               </p>
+
+              {avgRating && (
+                <div className="course-avg-rating">
+                  <StarRating value={Math.round(avgRating)} readOnly size={18} />
+                  <span className="avg-rating-text">{avgRating} ({reviews.length} review{reviews.length !== 1 ? "s" : ""})</span>
+                </div>
+              )}
 
               <div className="course-buy">
                 <button className="buy-btn" onClick={handleStartCourse}>
@@ -105,6 +132,32 @@ const AboutCourse = () => {
             <h3>About this course</h3>
             <p>{course.description || "No description provided."}</p>
           </div>
+
+          {/* Reviews are shown in CourseView after completion */}
+          {reviews.length > 0 && (
+            <div className="reviews-section">
+              <h3>Reviews <span className="avg-badge">⭐ {avgRating}</span></h3>
+              <div className="reviews-list">
+                {reviews.map((r) => (
+                  <div key={r.id} className="review-card">
+                    <div className="review-header">
+                      <img
+                        src={r.userPhoto || "/default-avatar.jpg"}
+                        alt={r.userName}
+                        className="review-avatar"
+                        onError={(e) => (e.target.src = "/default-avatar.jpg")}
+                      />
+                      <div>
+                        <p className="review-author">{r.userName}</p>
+                        <StarRating value={r.rating} readOnly size={14} />
+                      </div>
+                    </div>
+                    {r.text && <p className="review-text">{r.text}</p>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="recommended-section">

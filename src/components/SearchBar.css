@@ -16,3 +16,10 @@
   width: 24px;
   height: 24px;
 }
+
+@media (max-width: 600px) {
+  .input-search {
+    width: 140px;
+    font-size: 11px;
+  }
+}

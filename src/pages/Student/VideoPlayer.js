@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import RecommendedVideos from "../../components/RecommendedVideos";
 import { db } from "../../utils/firebase";
@@ -24,6 +24,10 @@ const VideoPlayer = ({ videos, user }) => {
   const [editingId, setEditingId] = useState(null);
   const [editText, setEditText] = useState("");
   const [loadingComments, setLoadingComments] = useState(true);
+  const playerRef = useRef(null);
+  const ytPlayerRef = useRef(null);
+  const saveIntervalRef = useRef(null);
+  const storageKey = `videoProgress_${user?.uid || "guest"}_${id}`;
 
   useEffect(() => {
     if (videos && videos.length > 0) {
@@ -125,6 +129,47 @@ const VideoPlayer = ({ videos, user }) => {
     }
   };
 
+  useEffect(() => {
+    if (!video) return;
+
+    const savedTime = parseFloat(localStorage.getItem(storageKey) || "0");
+
+    const onYTReady = () => {
+      if (!window.YT) return;
+
+      ytPlayerRef.current = new window.YT.Player(playerRef.current, {
+        events: {
+          onReady: (e) => {
+            if (savedTime > 10) e.target.seekTo(savedTime, true);
+            saveIntervalRef.current = setInterval(() => {
+              try {
+                const t = e.target.getCurrentTime();
+                if (t > 0) localStorage.setItem(storageKey, t);
+              } catch (_) {}
+            }, 5000);
+          },
+        },
+      });
+    };
+
+    if (window.YT && window.YT.Player) {
+      onYTReady();
+    } else {
+      window.onYouTubeIframeAPIReady = onYTReady;
+      if (!document.getElementById("yt-api-script")) {
+        const script = document.createElement("script");
+        script.id = "yt-api-script";
+        script.src = "https://www.youtube.com/iframe_api";
+        document.head.appendChild(script);
+      }
+    }
+
+    return () => {
+      clearInterval(saveIntervalRef.current);
+      if (ytPlayerRef.current?.destroy) ytPlayerRef.current.destroy();
+    };
+  }, [video, storageKey]);
+
   if (!video) return <div className="loading">Loading video...</div>;
 
   const youtubeID = video.youtubeUrl?.includes("v=")
@@ -137,8 +182,13 @@ const VideoPlayer = ({ videos, user }) => {
       <div className="content-player">
         <div className="video-content">
           <div className="video-player">
+            {parseFloat(localStorage.getItem(storageKey) || "0") > 10 && (
+              <p className="resume-hint">▶ Resuming from where you left off</p>
+            )}
             <iframe
-              src={`https://www.youtube.com/embed/${youtubeID}`}
+              ref={playerRef}
+              id={`yt-player-${id}`}
+              src={`https://www.youtube.com/embed/${youtubeID}?enablejsapi=1`}
               title={video.title}
               frameBorder="0"
               allowFullScreen
@@ -155,102 +205,6 @@ const VideoPlayer = ({ videos, user }) => {
               ))}
             </div>
 
-            <div className="comments-section">
-              <h3>Comments ({comments.length})</h3>
-
-              {user ? (
-                <form onSubmit={handleAddComment} className="comment-form">
-                  <img
-                    src={user.photoURL || "/default-avatar.jpg"}
-                    alt="avatar"
-                    className="comment-avatar"
-                  />
-                  <input
-                    type="text"
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    placeholder="Add a comment..."
-                    maxLength="500"
-                  />
-                  <button type="submit" disabled={!comment.trim()}>
-                    Post
-                  </button>
-                </form>
-              ) : (
-                <p className="login-warning">Log in to leave a comment</p>
-              )}
-
-              {loadingComments ? (
-                <p>Loading comments...</p>
-              ) : comments.length === 0 ? (
-                <p className="no-comments">No comments yet. Be the first!</p>
-              ) : (
-                comments.map((c) => (
-                  <div key={c.id} className="comment">
-                    <div className="comment-header">
-                      <img
-                        src={c.authorPhoto || "/default-avatar.jpg"}
-                        alt={c.authorName}
-                        className="comment-avatar"
-                      />
-                      <div className="comment-meta">
-                        <p className="comment-author">{c.authorName}</p>
-                        <span className="comment-date">
-                          {c.createdAt?.toDate?.().toLocaleString() ||
-                            "Just now"}
-                          {c.editedAt && " (edited)"}
-                        </span>
-                      </div>
-
-                      {user?.uid === c.authorId && (
-                        <div className="comment-actions">
-                          <button
-                            onClick={() => startEditing(c.id, c.text)}
-                            className="edit-btn-com"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDeleteComment(c.id)}
-                            className="delete-btn-com"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      )}
-                    </div>
-
-                    {editingId === c.id ? (
-                      <div className="comment-edit">
-                        <input
-                          type="text"
-                          value={editText}
-                          onChange={(e) => setEditText(e.target.value)}
-                          maxLength="500"
-                          className="edit-input"
-                        />
-                        <div className="edit-buttons">
-                          <button
-                            onClick={() => handleEditComment(c.id)}
-                            className="save-btn-com"
-                          >
-                            Save
-                          </button>
-                          <button
-                            onClick={cancelEditing}
-                            className="cancel-btn-com"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <p className="comment-text">{c.text}</p>
-                    )}
-                  </div>
-                ))
-              )}
-            </div>
           </div>
 
           <div className="recommended-section">
@@ -265,6 +219,102 @@ const VideoPlayer = ({ videos, user }) => {
               <p>No tags found for this video.</p>
             )}
           </div>
+        </div>
+
+        <div className="comments-section">
+          <h3>Comments ({comments.length})</h3>
+
+          {user ? (
+            <form onSubmit={handleAddComment} className="comment-form">
+              <img
+                src={user.photoURL || "/default-avatar.jpg"}
+                alt="avatar"
+                className="comment-avatar"
+              />
+              <input
+                type="text"
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Add a comment..."
+                maxLength="500"
+              />
+              <button type="submit" disabled={!comment.trim()}>
+                Post
+              </button>
+            </form>
+          ) : (
+            <p className="login-warning">Log in to leave a comment</p>
+          )}
+
+          {loadingComments ? (
+            <p>Loading comments...</p>
+          ) : comments.length === 0 ? (
+            <p className="no-comments">No comments yet. Be the first!</p>
+          ) : (
+            comments.map((c) => (
+              <div key={c.id} className="comment">
+                <div className="comment-header">
+                  <img
+                    src={c.authorPhoto || "/default-avatar.jpg"}
+                    alt={c.authorName}
+                    className="comment-avatar"
+                  />
+                  <div className="comment-meta">
+                    <p className="comment-author">{c.authorName}</p>
+                    <span className="comment-date">
+                      {c.createdAt?.toDate?.().toLocaleString() || "Just now"}
+                      {c.editedAt && " (edited)"}
+                    </span>
+                  </div>
+
+                  {user?.uid === c.authorId && (
+                    <div className="comment-actions">
+                      <button
+                        onClick={() => startEditing(c.id, c.text)}
+                        className="edit-btn-com"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteComment(c.id)}
+                        className="delete-btn-com"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {editingId === c.id ? (
+                  <div className="comment-edit">
+                    <input
+                      type="text"
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      maxLength="500"
+                      className="edit-input"
+                    />
+                    <div className="edit-buttons">
+                      <button
+                        onClick={() => handleEditComment(c.id)}
+                        className="save-btn-com"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={cancelEditing}
+                        className="cancel-btn-com"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="comment-text">{c.text}</p>
+                )}
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

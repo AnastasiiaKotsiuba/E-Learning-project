@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
   Navigate,
+  useParams,
 } from "react-router-dom";
 
 import Header from "./components/Header";
@@ -14,27 +15,35 @@ import Lessons from "./pages/Student/Lessons";
 import CourseView from "./pages/Student/CourseView";
 import TeachersPage from "./pages/Student/Teachers";
 import Dashboard from "./pages/Student/Dashboard";
+import StudentHome from "./pages/Student/StudentHome";
 import VideoPlayer from "./pages/Student/VideoPlayer";
 import AboutCourse from "./pages/Student/AboutCourse";
 import MyProfileS from "./pages/Student/MyProfileS";
+import TeacherProfile from "./pages/Student/TeacherProfile";
 
 import AddVideo from "./pages/Teacher/CreateContent";
 import Home from "./pages/Teacher/Home";
-import Chat from "./pages/Teacher/Chat";
 import MyProfileT from "./pages/Teacher/MyProfileT";
 import CourseBuilder from "./pages/Teacher/CourseBuilder";
 
 import AuthPage from "./pages/Auth/AuthPage";
+import Footer from "./components/Footer";
 
 import { auth, db } from "./utils/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { collection, onSnapshot, doc, getDoc } from "firebase/firestore";
+
+const VideoPlayerWrapper = ({ videos, user }) => {
+  const { id } = useParams();
+  return <VideoPlayer key={id} videos={videos} user={user} />;
+};
 
 const App = () => {
   const [user, setUser] = useState(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
   const [videosData, setVideosData] = useState([]);
   const [teachersData, setTeachersData] = useState([]);
+  const [coursesData, setCoursesData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
@@ -95,9 +104,20 @@ const App = () => {
       (error) => console.error("Error loading teachers:", error)
     );
 
+    const unsubCourses = onSnapshot(
+      collection(db, "courses"),
+      (snapshot) => {
+        setCoursesData(
+          snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+        );
+      },
+      (error) => console.error("Error loading courses:", error)
+    );
+
     return () => {
       unsubVideos();
       unsubTeachers();
+      unsubCourses();
     };
   }, []);
 
@@ -121,13 +141,14 @@ const App = () => {
 
   return (
     <Router>
-      {/* === Хедери === */}
       {user?.role === "student" && (
         <Header
           searchTerm={searchTerm}
           onSearchChange={handleSearchChange}
           onLogout={handleLogout}
           photoURL={user.photoURL || "/default-avatar.jpg"}
+          videosData={videosData}
+          coursesData={coursesData}
         />
       )}
       {user?.role === "teacher" && (
@@ -138,7 +159,6 @@ const App = () => {
       )}
 
       <Routes>
-        {/* AUTH */}
         <Route
           path="/auth"
           element={
@@ -150,9 +170,17 @@ const App = () => {
           }
         />
 
-        {/* STUDENT ROUTES */}
         {user?.role === "student" && (
           <>
+            <Route
+              path="/"
+              element={
+                <StudentHome
+                  recommendedVideos={videosData}
+                  userName={user.name}
+                />
+              }
+            />
             <Route
               path="/Courses"
               element={
@@ -197,10 +225,10 @@ const App = () => {
               path="/student/myprofile"
               element={<MyProfileS user={user} setUser={setUser} />}
             />
-            <Route path="*" element={<Navigate to="/Lessons" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
             <Route
               path="/video/:id"
-              element={<VideoPlayer videos={videosData} user={user} />}
+              element={<VideoPlayerWrapper videos={videosData} user={user} />}
             />
             <Route
               path="/course/:id"
@@ -210,15 +238,17 @@ const App = () => {
               path="/course/:id/view"
               element={<CourseView user={user} />}
             />
+            <Route
+              path="/teacher-profile/:id"
+              element={<TeacherProfile user={user} />}
+            />
           </>
         )}
 
-        {/* TEACHER ROUTES */}
         {user?.role === "teacher" && (
           <>
             <Route path="/teacher/home" element={<Home />} />
-            <Route path="/teacher/chat" element={<Chat />} />
-            <Route path="/teacher/myprofile" element={<MyProfileT />} />
+            <Route path="/teacher/myprofile" element={<MyProfileT setUser={setUser} />} />
             <Route path="/teacher/addvideo" element={<AddVideo />} />
             <Route path="/teacher/addvideo/:id" element={<AddVideo />} />
             <Route
@@ -231,8 +261,12 @@ const App = () => {
 
         {!user && <Route path="/*" element={<Navigate to="/auth" replace />} />}
       </Routes>
+
+      {user && <Footer role={user.role} />}
     </Router>
   );
 };
 
 export default App;
+
+

@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import "./TeacherCard.css";
 
 const TeacherCard = ({
@@ -11,6 +12,7 @@ const TeacherCard = ({
   onSave,
   isSaved,
 }) => {
+  const navigate = useNavigate();
   const handleSaveClick = () => {
     if (onSave) onSave(id);
   };
@@ -52,7 +54,7 @@ const TeacherCard = ({
       </div>
 
       <p className="teacher-description">{description}</p>
-      <button className="show-more-btn">Show more</button>
+      <button className="show-more-btn" onClick={() => navigate(`/teacher-profile/${id}`)}>Show more</button>
     </div>
   );
 };

@@ -1,15 +1,16 @@
 .teacher-card {
-  width: 268px;
-  height: 232px;
+  width: 340px;
+  height: 280px;
   background-color: #fdfdfd;
-  border-radius: 30px;
+  border-radius: 20px;
   padding: 25px;
   box-shadow: 0 0 5px rgba(58, 58, 58, 0.15);
   font-family: "Montserrat", sans-serif;
   color: #404040;
   text-align: center;
-  display: flex; 
+  display: flex;
   flex-direction: column;
+  box-sizing: border-box;
 }
 
 .teacher-card:hover {
@@ -59,8 +60,13 @@
   font-size: 14px;
   color: #606060;
   line-height: 1.5;
-  margin: 15px 0 20px;
+  margin: 15px 0 0;
   text-align: left;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .filtersTCard {
@@ -104,8 +110,17 @@
   border-radius: 65px;
   cursor: pointer;
   transition: background-color 0.3s;
+  margin-top: auto;
+  flex-shrink: 0;
 }
 
 .show-more-btn:hover {
   background-color: #efc9ff;
+}
+
+@media (max-width: 600px) {
+  .teacher-card {
+    width: 100%;
+    max-width: 400px;
+  }
 }

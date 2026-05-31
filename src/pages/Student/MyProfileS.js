@@ -34,7 +34,7 @@ const MyProfileS = ({ user, setUser }) => {
         if (docSnap.exists()) {
           const data = docSnap.data();
           dataToSet = {
-            name: data.name || user?.name || "",
+            name: data.name || data.username || user?.name || "",
             photoURL: data.photoURL || user?.photoURL || "",
             email: data.email || currentUser.email,
           };

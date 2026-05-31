@@ -3,23 +3,25 @@ import VideoCard from "../../components/VideoCard";
 import TeacherCard from "../../components/TeacherCard";
 import CourseCard from "../../components/CourseCard";
 import { auth, db } from "../../utils/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";
 
 const Dashboard = ({
-  allTeachers = [], // optional fallback if you pass teachers via props
-  recommendedVideos = [], // array of video objects (from props)
-  searchTerm = "", // search string
+  allTeachers = [], 
+  recommendedVideos = [], 
+  searchTerm = "",
 }) => {
   const userId = auth.currentUser?.uid;
+  const navigate = useNavigate();
   const [savedVideoIds, setSavedVideoIds] = useState([]);
+  const [inProgressCourses, setInProgressCourses] = useState([]);
   const [savedTeacherIds, setSavedTeacherIds] = useState([]);
   const [savedCourseIds, setSavedCourseIds] = useState([]);
 
   const [teachersMap, setTeachersMap] = useState({});
-  const [allCourses, setAllCourses] = useState([]); // courses loaded from Firestore
+  const [allCourses, setAllCourses] = useState([]); 
 
-  // load saved ids from localStorage
   useEffect(() => {
     if (!userId) return;
     const savedV = localStorage.getItem(`savedLessons_${userId}`);
@@ -30,7 +32,6 @@ const Dashboard = ({
     setSavedCourseIds(savedC ? JSON.parse(savedC).map(String) : []);
   }, [userId]);
 
-  // fetch teachers from Firestore to build map (photoURL etc.)
   useEffect(() => {
     const fetchTeachers = async () => {
       try {
@@ -54,7 +55,47 @@ const Dashboard = ({
     fetchTeachers();
   }, []);
 
-  // fetch courses from Firestore
+  useEffect(() => {
+    const fetchInProgress = async () => {
+      if (!userId) return;
+      try {
+        const progressSnap = await getDocs(
+          query(collection(db, "userProgress"), where("userId", "==", userId))
+        );
+        const progressRecords = progressSnap.docs
+          .map((d) => ({ id: d.id, ...d.data() }))
+          .filter((p) => p.progress > 0 && p.progress < 100);
+
+        if (progressRecords.length === 0) return;
+
+        const courseIds = progressRecords.map((p) => p.courseId);
+        const coursesSnap = await getDocs(collection(db, "courses"));
+        const courseMap = {};
+        coursesSnap.forEach((d) => { courseMap[d.id] = { id: d.id, ...d.data() }; });
+
+        const merged = progressRecords
+          .filter((p) => courseMap[p.courseId])
+          .map((p) => ({
+            ...courseMap[p.courseId],
+            progress: p.progress,
+            activeLessonTitle: p.activeLessonTitle,
+          }))
+          .sort((a, b) => {
+            const getTime = (v) =>
+              v?.seconds ? v.seconds * 1000
+              : v instanceof Date ? v.getTime()
+              : 0;
+            return getTime(b.updatedAt) - getTime(a.updatedAt);
+          });
+
+        setInProgressCourses(merged);
+      } catch (err) {
+        console.error("Error fetching in-progress courses:", err);
+      }
+    };
+    fetchInProgress();
+  }, [userId]);
+
   useEffect(() => {
     const fetchCourses = async () => {
       try {
@@ -72,7 +113,6 @@ const Dashboard = ({
             description: data.description || "",
             price: data.price ?? "",
             status: data.status || "",
-            // include any other fields you need
           });
         });
         setAllCourses(courses);
@@ -83,7 +123,6 @@ const Dashboard = ({
     fetchCourses();
   }, []);
 
-  // toggle save handlers (update state + localStorage)
   const handleSaveVideo = (id) => {
     if (!userId) return;
     const strId = String(id);
@@ -114,13 +153,11 @@ const Dashboard = ({
     localStorage.setItem(`savedCourses_${userId}`, JSON.stringify(updated));
   };
 
-  // helper to test search match
   const matchesQuery = (text = "") => {
     if (!searchTerm) return true;
     return String(text).toLowerCase().includes(searchTerm.toLowerCase());
   };
 
-  // Filter courses: only saved ones, then apply search across title/teacher/tags/description
   const filteredCourses = (Array.isArray(allCourses) ? allCourses : [])
     .filter((course) => savedCourseIds.includes(String(course?.id)))
     .filter((course) => {
@@ -141,7 +178,6 @@ const Dashboard = ({
       );
     });
 
-  // Filter videos: only saved ones, then apply search
   const filteredVideos = (
     Array.isArray(recommendedVideos) ? recommendedVideos : []
   )
@@ -161,8 +197,6 @@ const Dashboard = ({
       );
     });
 
-  // Filter teachers: you might pass allTeachers or rely on teachersMap;
-  // here we prefer allTeachers prop if provided; otherwise build from teachersMap keys.
   const teachersSource =
     Array.isArray(allTeachers) && allTeachers.length > 0
       ? allTeachers
@@ -188,7 +222,40 @@ const Dashboard = ({
   return (
     <div className="dashboard">
       <div className="content">
-        {/* ===== Courses (saved) - should appear before Lessons ===== */}
+
+        {inProgressCourses.length > 0 && (
+          <>
+            <h2 className="headerText">▶ Continue Watching</h2>
+            <div className="continue-watching-list">
+              {inProgressCourses.map((course) => (
+                <div
+                  key={course.id}
+                  className="continue-card"
+                  onClick={() => navigate(`/course/${course.id}/view`)}
+                >
+                  <img
+                    src={course.thumbnail || "/default-cover.png"}
+                    alt={course.title}
+                    className="continue-thumb"
+                    onError={(e) => (e.target.src = "/default-cover.png")}
+                  />
+                  <div className="continue-info">
+                    <p className="continue-title">{course.title}</p>
+                    <p className="continue-lesson">Next: {course.activeLessonTitle || "—"}</p>
+                    <div className="continue-bar-bg">
+                      <div
+                        className="continue-bar-fill"
+                        style={{ width: `${Math.round(course.progress)}%` }}
+                      />
+                    </div>
+                    <p className="continue-pct">{Math.round(course.progress)}% complete</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
         <h2 className="headerText">🎓 Saved Courses</h2>
         <div className="cardContainer">
           {filteredCourses.length === 0 ? (
@@ -217,7 +284,6 @@ const Dashboard = ({
           )}
         </div>
 
-        {/* ===== Lessons (saved videos) ===== */}
         <h2 className="headerText">📘 Saved Lessons</h2>
         <div className="cardContainer">
           {filteredVideos.length === 0 ? (
@@ -246,7 +312,6 @@ const Dashboard = ({
           )}
         </div>
 
-        {/* ===== Teachers (saved) ===== */}
         <h2 className="headerText">👩‍🏫 Saved Teachers</h2>
         <div className="cardContainer">
           {filteredTeachers.length === 0 ? (

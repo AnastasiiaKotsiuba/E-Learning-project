@@ -9,7 +9,8 @@ const CourseEditorCard = ({
   teacherPhotoURL,
   thumbnail,
   filters = [],
-  status = "draft", 
+  status = "draft",
+  description = "",
 }) => {
   const navigate = useNavigate();
 
@@ -61,6 +62,10 @@ const CourseEditorCard = ({
             <span className="tag-course">No tags</span>
           )}
         </div>
+
+        {description && (
+          <p className="course-editor-description">{description}</p>
+        )}
 
         <div className="edit-btn-container">
           <button className="edit-btn" onClick={handleEdit}>

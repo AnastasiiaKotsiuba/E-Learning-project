@@ -20,11 +20,11 @@ const Courses = ({ searchTerm = "" }) => {
   });
 
   const [courses, setCourses] = useState([]);
-  const [videos, setVideos] = useState([]);
   const [teachers, setTeachers] = useState([]);
   const [tags, setTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   const [selectedTeachers, setSelectedTeachers] = useState([]);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [teachersMap, setTeachersMap] = useState({});
 
   const [savedIds, setSavedIds] = useState(() => {
@@ -65,17 +65,6 @@ const Courses = ({ searchTerm = "" }) => {
   }, []);
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "videos"), (snapshot) => {
-      const loadedVideos = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setVideos(loadedVideos);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
     const fetchTeachers = async () => {
       const snapshot = await getDocs(collection(db, "teachers"));
       const map = {};
@@ -93,13 +82,13 @@ const Courses = ({ searchTerm = "" }) => {
 
   useEffect(() => {
     const uniqueTags = new Set();
-    videos.forEach((video) => {
-      if (Array.isArray(video.tags)) {
-        video.tags.forEach((tag) => uniqueTags.add(tag));
+    courses.forEach((course) => {
+      if (Array.isArray(course.tags)) {
+        course.tags.forEach((tag) => uniqueTags.add(tag));
       }
     });
     setTags([...uniqueTags]);
-  }, [videos]);
+  }, [courses]);
 
   const handleSave = (id) => {
     const strId = String(id);
@@ -141,10 +130,20 @@ const Courses = ({ searchTerm = "" }) => {
     );
   };
 
+  const activeFilterCount = selectedTags.length + selectedTeachers.length;
+
   return (
     <div className="content">
       <div className="content-courses">
-        <aside className="filters-sidebar">
+        <button
+          className="filters-toggle-btn"
+          onClick={() => setFiltersOpen((prev) => !prev)}
+        >
+          Filters {activeFilterCount > 0 && <span className="filters-badge">{activeFilterCount}</span>}
+          <span className="filters-toggle-arrow">{filtersOpen ? "▲" : "▼"}</span>
+        </button>
+
+        <aside className={`filters-sidebar${filtersOpen ? " filters-sidebar--open" : ""}`}>
           <div>
             <h3>Topics</h3>
             <div className="filters-list">
@@ -210,6 +209,7 @@ const Courses = ({ searchTerm = "" }) => {
                   filters={Array.isArray(course.tags) ? course.tags : []}
                   onSave={handleSave}
                   isSaved={savedIds.includes(String(course.id))}
+                  description={course.description || ""}
                 />
               ))
             )}
