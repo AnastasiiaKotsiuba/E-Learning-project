@@ -13,7 +13,7 @@ import "./CourseBuilder.css";
 const CourseBuilder = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const uid = auth.currentUser?.uid;
+  
 
   const [course, setCourse] = useState({
     title: "",

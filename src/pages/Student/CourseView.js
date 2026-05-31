@@ -346,22 +346,4 @@ const userId = auth.currentUser?.uid;
                       src={r.userPhoto || "/default-avatar.jpg"}
                       alt={r.userName}
                       className="review-avatar"
-                      onError={(e) => (e.target.src = "/default-avatar.jpg")}
-                    />
-                    <div>
-                      <p className="review-author">{r.userName}</p>
-                      <StarRating value={r.rating} readOnly size={14} />
-                    </div>
-                  </div>
-                  {r.text && <p className="review-text">{r.text}</p>}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default CourseView;
+                      onEr

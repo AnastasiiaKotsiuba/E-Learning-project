@@ -87,6 +87,7 @@ const CreateContent = () => {
     }
   };
 
+  // eslint-disable-next-line no-unused-vars
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
