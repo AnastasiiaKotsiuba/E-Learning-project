@@ -66,7 +66,7 @@ const userId = auth.currentUser?.uid;
     };
 
     fetchCourseAndProgress();
-  }, [id]);
+  }, [id, userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const saveProgress = async (newProgress, newLessonTitle) => {
     try {
